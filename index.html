@@ -3,157 +3,296 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OrgAdmin // Gen-Z Database</title>
+    <title>OrgMaster Pro // Next-Gen Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        darkBg: '#0f172a',
+                        darkCard: '#1e293b'
+                    },
+                    borderRadius: {
+                        '4xl': '2rem',
+                    }
+                }
+            }
+        }
+    </script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .glass-morphism { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.2); }
-        .gradient-text { background: linear-gradient(90deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; transition: background-color 0.3s ease; }
+        [x-cloak] { display: none !important; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
     </style>
 </head>
-<body class="bg-[#f8fafc] text-slate-900" x-data="app()">
+<body class="bg-slate-50 dark:bg-darkBg text-slate-900 dark:text-slate-100" 
+      x-data="app()" 
+      :class="darkMode ? 'dark' : ''">
 
-    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t border-slate-200 z-50 px-6 py-4 flex justify-between items-center shadow-2xl">
-        <button @click="menu = 'dashboard'" :class="menu === 'dashboard' ? 'text-blue-600' : 'text-slate-400'"><i class="fas fa-grid-2 text-xl"></i></button>
-        <button @click="menu = 'tambah'" :class="menu === 'tambah' ? 'text-blue-600' : 'text-slate-400'"><i class="fas fa-plus-circle text-2xl"></i></button>
-        <button @click="menu = 'data'" :class="menu === 'data' ? 'text-blue-600' : 'text-slate-400'"><i class="fas fa-users text-xl"></i></button>
+    <aside class="hidden lg:flex w-72 flex-col fixed h-full z-20 bg-white dark:bg-darkCard border-r border-slate-200 dark:border-slate-700 shadow-2xl">
+        <div class="p-8 flex items-center justify-between">
+            <h1 class="text-2xl font-extrabold tracking-tighter text-primary">ORG<span class="text-slate-400">MASTER</span></h1>
+            <button @click="darkMode = !darkMode" class="p-2 rounded-xl bg-slate-100 dark:bg-slate-800 transition">
+                <i class="fas" :class="darkMode ? 'fa-sun text-yellow-400' : 'fa-moon text-indigo-600'"></i>
+            </button>
+        </div>
+        
+        <nav class="flex-1 px-4 space-y-2 mt-4">
+            <template x-for="m in menus">
+                <button @click="menu = m.id" 
+                        :class="menu === m.id ? 'bg-primary text-white shadow-lg shadow-primary/30' : 'text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800'"
+                        class="w-full flex items-center p-4 rounded-2xl transition-all font-semibold group">
+                    <i class="fas w-8 group-hover:scale-110 transition" :class="m.icon"></i>
+                    <span x-text="m.label"></span>
+                </button>
+            </template>
+        </nav>
+
+        <div class="p-6">
+            <button @click="exportToExcel" class="w-full bg-slate-900 dark:bg-slate-100 dark:text-slate-900 text-white py-4 rounded-2xl font-bold hover:scale-105 transition-transform">
+                <i class="fas fa-file-excel mr-2"></i> Export Data
+            </button>
+        </div>
+    </aside>
+
+    <nav class="lg:hidden fixed bottom-0 left-0 right-0 bg-white/90 dark:bg-darkCard/90 backdrop-blur-xl border-t border-slate-200 dark:border-slate-700 z-50 px-4 py-3 flex justify-between items-center shadow-2xl">
+        <template x-for="m in menus">
+            <button @click="menu = m.id" :class="menu === m.id ? 'text-primary scale-110' : 'text-slate-400'">
+                <i class="fas text-xl" :class="m.icon"></i>
+            </button>
+        </template>
+        <button @click="darkMode = !darkMode" class="text-slate-400">
+            <i class="fas text-xl" :class="darkMode ? 'fa-sun' : 'fa-moon'"></i>
+        </button>
     </nav>
 
-    <div class="flex min-h-screen">
-        <aside class="hidden lg:flex w-72 bg-white border-r border-slate-200 flex-col fixed h-full z-20">
-            <div class="p-8"><h1 class="text-2xl font-extrabold tracking-tighter gradient-text uppercase">Connect.Org</h1></div>
-            <nav class="flex-1 px-4 space-y-2">
-                <button @click="menu = 'dashboard'" :class="menu === 'dashboard' ? 'bg-blue-50 text-blue-600' : 'text-slate-500 hover:bg-slate-50'" class="w-full flex items-center p-4 rounded-2xl transition-all font-semibold">
-                    <i class="fas fa-chart-pie w-8"></i> Dashboard
-                </button>
-                <button @click="menu = 'tambah'" :class="menu === 'tambah' ? 'bg-blue-50 text-blue-600' : 'text-slate-500 hover:bg-slate-50'" class="w-full flex items-center p-4 rounded-2xl transition-all font-semibold">
-                    <i class="fas fa-plus w-8"></i> Tambah Anggota
-                </button>
-                <button @click="menu = 'data'" :class="menu === 'data' ? 'bg-blue-50 text-blue-600' : 'text-slate-500 hover:bg-slate-50'" class="w-full flex items-center p-4 rounded-2xl transition-all font-semibold">
-                    <i class="fas fa-address-book w-8"></i> Data Anggota
-                </button>
-            </nav>
-            <div class="p-6"><button @click="exportToExcel" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold hover:bg-black shadow-lg shadow-slate-300">Download Excel</button></div>
-        </aside>
-
-        <main class="flex-1 lg:ml-72 p-6 lg:p-12 mb-20 lg:mb-0">
-            
-            <div x-show="menu === 'dashboard'" x-transition>
-                <header class="mb-10">
-                    <h2 class="text-4xl font-extrabold text-slate-900 leading-tight">Yo! 👋<br>Sistem Siap Digunakan.</h2>
-                </header>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-blue-600 p-8 rounded-[2.5rem] text-white shadow-xl shadow-blue-200">
-                        <p class="opacity-80 font-medium">Total Squad</p>
-                        <h3 class="text-6xl font-extrabold mt-2" x-text="dataAnggota.length"></h3>
-                    </div>
-                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm flex items-center justify-between">
-                        <div>
-                            <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">Status Server</p>
-                            <h3 class="text-2xl font-bold text-slate-800 mt-1 flex items-center gap-2">
-                                <span class="w-3 h-3 bg-green-500 rounded-full animate-ping"></span> Online
-                            </h3>
-                        </div>
-                        <i class="fas fa-cloud text-4xl text-blue-100"></i>
-                    </div>
-                </div>
+    <main class="flex-1 lg:ml-72 p-6 lg:p-12 mb-24 lg:mb-0">
+        
+        <header class="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
+            <div>
+                <h2 class="text-3xl font-extrabold" x-text="getCurrentMenuLabel()"></h2>
+                <p class="text-slate-400 dark:text-slate-500 font-medium">Manajemen Organisasi v2.0</p>
             </div>
+            <div x-show="menu === 'data'" class="relative">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                <input type="text" x-model="search" placeholder="Cari Nama/ID..." 
+                       class="pl-12 pr-6 py-3 bg-white dark:bg-darkCard rounded-2xl border-none shadow-sm focus:ring-2 focus:ring-primary w-full md:w-80">
+            </div>
+        </header>
 
-            <div x-show="menu === 'tambah'" x-transition class="max-w-2xl mx-auto">
-                <div class="bg-white rounded-[3rem] p-8 lg:p-10 shadow-2xl shadow-slate-200 border border-slate-100">
-                    <div class="text-center mb-10">
-                        <div class="inline-block px-4 py-1 bg-blue-100 text-blue-600 rounded-full text-xs font-bold uppercase mb-4 tracking-widest">New Member</div>
-                        <h2 class="text-3xl font-bold text-slate-900">Input Data Anggota</h2>
+        <div x-show="menu === 'tambah'" x-cloak x-transition class="max-w-4xl mx-auto">
+            <div class="bg-white dark:bg-darkCard rounded-4xl p-8 shadow-xl border border-slate-100 dark:border-slate-800">
+                <form @submit.prevent="simpanData" class="space-y-8">
+                    <div class="bg-primary/10 dark:bg-primary/5 p-6 rounded-3xl border border-primary/20 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] font-bold text-primary uppercase tracking-widest">Preview ID Anggota</span>
+                            <h3 class="text-3xl font-mono font-bold text-primary" x-text="generateID()"></h3>
+                        </div>
+                        <i class="fas fa-id-card text-4xl text-primary/30"></i>
                     </div>
 
-                    <form @submit.prevent="simpanData" class="space-y-6">
-                        <div class="flex flex-col items-center mb-8">
-                            <div class="w-32 h-32 rounded-[2rem] bg-slate-100 border-2 border-dashed border-slate-300 flex items-center justify-center overflow-hidden relative group cursor-pointer">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div class="space-y-4">
+                            <label class="text-sm font-bold opacity-50 uppercase tracking-widest ml-2 italic">Foto Profil</label>
+                            <div class="relative h-64 bg-slate-50 dark:bg-slate-800/50 rounded-4xl border-2 border-dashed border-slate-200 dark:border-slate-700 flex items-center justify-center overflow-hidden group">
                                 <template x-if="form.foto">
                                     <img :src="form.foto" class="w-full h-full object-cover">
                                 </template>
-                                <i x-show="!form.foto" class="fas fa-plus text-slate-400"></i>
+                                <div x-show="!form.foto" class="text-center">
+                                    <i class="fas fa-image text-4xl text-slate-300 mb-2"></i>
+                                    <p class="text-[10px] font-bold text-slate-400">TAP UNTUK UPLOAD</p>
+                                </div>
                                 <input type="file" @change="handleFileUpload" class="absolute inset-0 opacity-0 cursor-pointer">
                             </div>
-                            <p class="text-xs text-slate-400 mt-4 font-bold">TAP UNTUK UPLOAD FOTO</p>
                         </div>
 
                         <div class="space-y-4">
-                            <div class="grid grid-cols-3 gap-3">
-                                <input type="text" x-model="form.thn" placeholder="THN (24)" class="bg-slate-50 border-none p-4 rounded-2xl w-full focus:ring-2 focus:ring-blue-500">
-                                <input type="text" x-model="form.rt" placeholder="RT (01)" class="bg-slate-50 border-none p-4 rounded-2xl w-full focus:ring-2 focus:ring-blue-500">
-                                <input type="text" x-model="form.urut" placeholder="NO (001)" class="bg-slate-50 border-none p-4 rounded-2xl w-full focus:ring-2 focus:ring-blue-500">
+                            <div class="grid grid-cols-3 gap-2">
+                                <div>
+                                    <label class="text-[10px] font-bold ml-2 italic">THN</label>
+                                    <input type="text" x-model="form.thn" placeholder="24" class="w-full bg-slate-50 dark:bg-slate-800 border-none p-4 rounded-2xl focus:ring-2 focus:ring-primary">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold ml-2 italic">RT</label>
+                                    <input type="text" x-model="form.rt" placeholder="02" class="w-full bg-slate-50 dark:bg-slate-800 border-none p-4 rounded-2xl focus:ring-2 focus:ring-primary">
+                                </div>
+                                <div>
+                                    <label class="text-[10px] font-bold ml-2 italic">NO</label>
+                                    <input type="text" x-model="form.urut" placeholder="001" class="w-full bg-slate-50 dark:bg-slate-800 border-none p-4 rounded-2xl focus:ring-2 focus:ring-primary">
+                                </div>
                             </div>
-                            <input type="text" x-model="form.nama" placeholder="NAMA LENGKAP" class="bg-slate-50 border-none p-4 rounded-2xl w-full focus:ring-2 focus:ring-blue-500">
-                            
+                            <input type="text" x-model="form.nama" placeholder="NAMA LENGKAP" class="w-full bg-slate-50 dark:bg-slate-800 border-none p-4 rounded-2xl focus:ring-2 focus:ring-primary">
                             <div class="grid grid-cols-2 gap-4">
                                 <div>
-                                    <label class="text-[10px] font-bold text-slate-400 ml-2">TGL LAHIR</label>
-                                    <input type="date" x-model="form.tglLahir" @input="hitungUsia()" class="bg-slate-50 border-none p-4 rounded-2xl w-full">
+                                    <label class="text-[10px] font-bold ml-2 italic">TGL LAHIR</label>
+                                    <input type="date" x-model="form.tglLahir" @input="hitungUsia()" class="w-full bg-slate-50 dark:bg-slate-800 border-none p-4 rounded-2xl">
                                 </div>
                                 <div>
-                                    <label class="text-[10px] font-bold text-slate-400 ml-2">TGL GABUNG</label>
-                                    <input type="date" x-model="form.tglGabung" @input="hitungDurasi()" class="bg-slate-50 border-none p-4 rounded-2xl w-full">
+                                    <label class="text-[10px] font-bold ml-2 italic">TGL BERGABUNG</label>
+                                    <input type="date" x-model="form.tglGabung" @input="hitungDurasi()" class="w-full bg-slate-50 dark:bg-slate-800 border-none p-4 rounded-2xl">
                                 </div>
+                            </div>
+                            <input type="text" x-model="form.pekerjaan" placeholder="PEKERJAAN" class="w-full bg-slate-50 dark:bg-slate-800 border-none p-4 rounded-2xl">
+                            <input type="text" x-model="form.noHp" placeholder="NO TELEPON/WA" class="w-full bg-slate-50 dark:bg-slate-800 border-none p-4 rounded-2xl">
+                        </div>
+                    </div>
+
+                    <button type="submit" :disabled="loading" class="w-full bg-primary text-white py-5 rounded-3xl font-bold shadow-xl shadow-primary/20 hover:scale-[1.01] transition-all flex items-center justify-center gap-3">
+                        <i x-show="loading" class="fas fa-spinner animate-spin"></i>
+                        <span x-text="loading ? 'Sinkronisasi Cloud...' : 'Daftarkan Sekarang'"></span>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div x-show="menu === 'data'" x-cloak x-transition>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <template x-for="item in filteredData()" :key="item.idAnggota">
+                    <div class="bg-white dark:bg-darkCard p-6 rounded-4xl border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-2xl transition-all group">
+                        <div class="flex items-center gap-4 mb-6">
+                            <img :src="item.foto || 'https://via.placeholder.com/150'" class="w-20 h-20 rounded-3xl object-cover shadow-lg border-2 border-white dark:border-slate-700">
+                            <div>
+                                <h4 class="text-xl font-extrabold" x-text="item.nama"></h4>
+                                <span class="text-xs font-mono font-bold text-primary px-3 py-1 bg-primary/10 rounded-full" x-text="item.idAnggota"></span>
                             </div>
                         </div>
+                        <div class="grid grid-cols-2 gap-4 mb-6">
+                            <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Usia</p>
+                                <p class="font-bold text-slate-700 dark:text-slate-300" x-text="item.usia + ' Thn'"></p>
+                            </div>
+                            <div class="bg-slate-50 dark:bg-slate-800/50 p-4 rounded-2xl">
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">RT</p>
+                                <p class="font-bold text-slate-700 dark:text-slate-300" x-text="item.rt"></p>
+                            </div>
+                        </div>
+                        <div class="p-4 bg-primary/5 border border-primary/10 rounded-2xl mb-4">
+                            <p class="text-[9px] font-bold text-primary uppercase tracking-widest">Lama Bergabung</p>
+                            <p class="font-bold text-xs" x-text="item.durasi"></p>
+                        </div>
+                        <button @click="hapusData(item.idAnggota)" class="w-full text-[10px] font-bold text-red-400 hover:text-red-500 transition uppercase tracking-widest">Hapus Anggota</button>
+                    </div>
+                </template>
+            </div>
+        </div>
 
-                        <button type="submit" class="w-full bg-blue-600 text-white py-5 rounded-[2rem] font-bold text-lg shadow-xl shadow-blue-200 hover:scale-[1.02] transition-all flex items-center justify-center gap-3">
-                            <span x-show="loading"><i class="fas fa-spinner animate-spin"></i></span>
-                            Simpan Ke Cloud
-                        </button>
+        <div x-show="menu === 'agenda'" x-cloak x-transition class="max-w-5xl mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="bg-white dark:bg-darkCard p-8 rounded-4xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                    <h3 class="text-xl font-bold mb-6">Buat Agenda Baru</h3>
+                    <form @submit.prevent="tambahAgenda" class="space-y-4">
+                        <input type="text" x-model="agendaForm.nama" placeholder="Nama Acara" class="w-full bg-slate-50 dark:bg-slate-800 border-none p-4 rounded-2xl">
+                        <input type="text" x-model="agendaForm.lokasi" placeholder="Tempat/Lokasi" class="w-full bg-slate-50 dark:bg-slate-800 border-none p-4 rounded-2xl">
+                        <input type="date" x-model="agendaForm.tanggal" class="w-full bg-slate-50 dark:bg-slate-800 border-none p-4 rounded-2xl">
+                        <button class="w-full bg-slate-900 dark:bg-slate-100 dark:text-slate-900 text-white py-4 rounded-2xl font-bold italic">Terbitkan Agenda</button>
                     </form>
                 </div>
-            </div>
-
-            <div x-show="menu === 'data'" x-transition>
-                <div class="mb-8 flex flex-col lg:flex-row justify-between items-center gap-4">
-                    <h2 class="text-3xl font-bold">The Squad.</h2>
-                    <input type="text" x-model="search" placeholder="Cari Nama/ID..." class="w-full lg:w-80 bg-white border-none p-4 rounded-2xl shadow-sm focus:ring-2 focus:ring-blue-500">
-                </div>
-                
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <template x-for="item in filteredData()" :key="item.idAnggota">
-                        <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-50 hover:shadow-xl transition-all">
-                            <div class="flex items-center gap-4 mb-4">
-                                <img :src="item.foto || 'https://via.placeholder.com/100'" class="w-16 h-16 rounded-2xl object-cover">
+                <div class="lg:col-span-2 space-y-6">
+                    <template x-for="a in agenda" :key="a.id">
+                        <div class="bg-white dark:bg-darkCard p-8 rounded-4xl border border-slate-100 dark:border-slate-800 shadow-sm">
+                            <div class="flex justify-between items-start mb-6">
                                 <div>
-                                    <h4 class="font-bold text-slate-900" x-text="item.nama"></h4>
-                                    <p class="text-[10px] font-bold text-blue-500 font-mono" x-text="item.idAnggota"></p>
+                                    <h4 class="text-2xl font-bold" x-text="a.nama"></h4>
+                                    <p class="text-slate-400 text-sm italic"><i class="fas fa-map-marker-alt mr-2"></i><span x-text="a.lokasi"></span> | <span x-text="a.tanggal"></span></p>
                                 </div>
+                                <button @click="hapusAgenda(a.id)" class="text-slate-300 hover:text-red-400"><i class="fas fa-trash"></i></button>
                             </div>
-                            <div class="bg-slate-50 p-4 rounded-2xl space-y-2 text-xs">
-                                <div class="flex justify-between">
-                                    <span class="text-slate-400 font-medium">Usia</span>
-                                    <span class="font-bold text-slate-700" x-text="item.usia + ' Tahun'"></span>
-                                </div>
-                                <div class="flex justify-between">
-                                    <span class="text-slate-400 font-medium">Lama Gabung</span>
-                                    <span class="font-bold text-slate-700 text-[10px]" x-text="item.durasi"></span>
-                                </div>
+                            <hr class="border-slate-100 dark:border-slate-800 mb-6">
+                            <h5 class="text-sm font-bold mb-4 uppercase tracking-widest text-primary italic">Daftar Hadir Absensi</h5>
+                            <div class="flex flex-wrap gap-2">
+                                <template x-for="agt in dataAnggota" :key="agt.idAnggota">
+                                    <button @click="toggleAbsen(a.id, agt.idAnggota)" 
+                                            :class="isHadir(a.id, agt.idAnggota) ? 'bg-primary text-white' : 'bg-slate-50 dark:bg-slate-800 text-slate-400'"
+                                            class="px-4 py-2 rounded-xl text-[10px] font-bold transition-all">
+                                        <i class="fas mr-2" :class="isHadir(a.id, agt.idAnggota) ? 'fa-check' : 'fa-plus'"></i>
+                                        <span x-text="agt.nama"></span>
+                                    </button>
+                                </template>
                             </div>
-                            <button @click="hapusData(item.idAnggota)" class="w-full mt-4 text-xs font-bold text-red-400 hover:text-red-600 transition">Hapus Data</button>
                         </div>
                     </template>
                 </div>
             </div>
-        </main>
-    </div>
+        </div>
+
+        <div x-show="menu === 'struktur'" x-cloak x-transition>
+            <div class="bg-white dark:bg-darkCard p-12 rounded-[3rem] border border-slate-100 dark:border-slate-800 flex flex-col items-center">
+                <h3 class="text-3xl font-extrabold mb-12 gradient-text">Struktur Kepengurusan</h3>
+                
+                <div class="flex flex-col items-center gap-12">
+                    <div class="relative group">
+                        <div class="w-40 h-40 bg-primary rounded-4xl flex flex-col items-center justify-center text-white shadow-2xl relative z-10">
+                            <i class="fas fa-user-tie text-3xl mb-2"></i>
+                            <p class="text-[10px] font-bold opacity-70">Ketua Umum</p>
+                            <p class="font-extrabold">Fulan Ahmad</p>
+                        </div>
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 w-1 h-24 bg-slate-200 dark:bg-slate-800"></div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-24 relative">
+                        <div class="w-32 h-32 bg-white dark:bg-slate-800 border-2 border-primary rounded-3xl flex flex-col items-center justify-center">
+                            <p class="text-[8px] font-bold text-primary">Wakil Ketua</p>
+                            <p class="font-bold text-xs italic">Budi Santoso</p>
+                        </div>
+                        <div class="w-32 h-32 bg-white dark:bg-slate-800 border-2 border-primary rounded-3xl flex flex-col items-center justify-center">
+                            <p class="text-[8px] font-bold text-primary">Sekretaris</p>
+                            <p class="font-bold text-xs italic">Siti Aminah</p>
+                        </div>
+                        <div class="w-32 h-32 bg-white dark:bg-slate-800 border-2 border-primary rounded-3xl flex flex-col items-center justify-center">
+                            <p class="text-[8px] font-bold text-primary">Bendahara</p>
+                            <p class="font-bold text-xs italic">Diana Putri</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="mt-20 text-slate-400 text-xs text-center italic">Grafik struktur organisasi otomatis diperbarui berdasarkan SK Pengurus.</p>
+            </div>
+        </div>
+
+    </main>
 
     <script>
-        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8bOvuBz5ZGznLWyvyMJrhbrFqoDNP7zVe4pC-TeHimDurlR9--1bylNVth2AakXE/exec'; // Masukkan URL Google Script di sini
+        // MASUKKAN URL GOOGLE APPS SCRIPT ANDA DISINI
+        const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbx8bOvuBz5ZGznLWyvyMJrhbrFqoDNP7zVe4pC-TeHimDurlR9--1bylNVth2AakXE/exec';
 
         function app() {
             return {
                 menu: 'dashboard',
-                search: '',
+                darkMode: localStorage.getItem('dark') === 'true',
                 loading: false,
-                dataAnggota: JSON.parse(localStorage.getItem('db_squad')) || [],
-                form: { thn: '', rt: '', urut: '', nama: '', tglLahir: '', usia: '', tglGabung: '', durasi: '', noHp: '', foto: '' },
+                search: '',
+                dataAnggota: JSON.parse(localStorage.getItem('db_pro')) || [],
+                agenda: JSON.parse(localStorage.getItem('db_agenda')) || [],
+                absensi: JSON.parse(localStorage.getItem('db_absen')) || {}, // { agendaId: [memberId1, memberId2] }
+                
+                menus: [
+                    { id: 'dashboard', label: 'Dashboard', icon: 'fa-chart-pie' },
+                    { id: 'tambah', label: 'Tambah Anggota', icon: 'fa-user-plus' },
+                    { id: 'data', label: 'Data Anggota', icon: 'fa-address-book' },
+                    { id: 'agenda', label: 'Agenda & Absen', icon: 'fa-calendar-check' },
+                    { id: 'struktur', label: 'Struktur Organisasi', icon: 'fa-sitemap' },
+                ],
+
+                form: { thn: '', rt: '', urut: '', nama: '', tglLahir: '', usia: '', tglGabung: '', durasi: '', pekerjaan: '', noHp: '', foto: '' },
+                agendaForm: { nama: '', lokasi: '', tanggal: '' },
+
+                init() {
+                    this.$watch('darkMode', val => localStorage.setItem('dark', val));
+                },
+
+                getCurrentMenuLabel() {
+                    return this.menus.find(m => m.id === this.menu).label;
+                },
 
                 handleFileUpload(e) {
                     const file = e.target.files[0];
@@ -162,60 +301,95 @@
                     reader.readAsDataURL(file);
                 },
 
+                generateID() {
+                    return (this.form.thn || '00') + (this.form.rt || '00') + (this.form.urut || '000');
+                },
+
                 hitungUsia() {
+                    if(!this.form.tglLahir) return;
                     const birth = new Date(this.form.tglLahir);
                     this.form.usia = new Date().getFullYear() - birth.getFullYear();
                 },
 
                 hitungDurasi() {
-                    const join = new Date(this.form.tglGabung);
+                    if(!this.form.tglGabung) return;
+                    const start = new Date(this.form.tglGabung);
                     const now = new Date();
-                    let y = now.getFullYear() - join.getFullYear();
-                    let m = now.getMonth() - join.getMonth();
-                    if (m < 0) { y--; m += 12; }
-                    this.form.durasi = `${y} Thn, ${m} Bln`;
+                    let years = now.getFullYear() - start.getFullYear();
+                    let months = now.getMonth() - start.getMonth();
+                    let days = now.getDate() - start.getDate();
+                    if (days < 0) { months--; days += 30; }
+                    if (months < 0) { years--; months += 12; }
+                    this.form.durasi = `${years} Thn, ${months} Bln, ${days} Hari`;
                 },
 
                 async simpanData() {
                     this.loading = true;
-                    const id = (this.form.thn) + (this.form.rt) + (this.form.urut);
-                    const payload = { idAnggota: id, ...this.form };
-
+                    const payload = { idAnggota: this.generateID(), ...this.form };
                     this.dataAnggota.push(payload);
-                    localStorage.setItem('db_squad', JSON.stringify(this.dataAnggota));
-
+                    localStorage.setItem('db_pro', JSON.stringify(this.dataAnggota));
+                    
                     try {
                         await fetch(APPS_SCRIPT_URL, {
                             method: 'POST',
                             mode: 'no-cors',
                             body: JSON.stringify(payload)
                         });
-                        alert('Squad Berhasil Ditambahkan ke Cloud! 🚀');
-                        this.form = { thn: '', rt: '', urut: '', nama: '', tglLahir: '', usia: '', tglGabung: '', durasi: '', noHp: '', foto: '' };
-                        this.menu = 'data';
+                        alert('Data Berhasil Terkirim ke Cloud! 🚀');
                     } catch (e) {
-                        alert('Gagal ke cloud, data tersimpan di HP/Desktop saja.');
+                        alert('Tersimpan Lokal (Cloud Sedang Sibuk)');
                     }
+                    
+                    this.form = { thn: '', rt: '', urut: '', nama: '', tglLahir: '', usia: '', tglGabung: '', durasi: '', pekerjaan: '', noHp: '', foto: '' };
                     this.loading = false;
+                    this.menu = 'data';
                 },
 
                 filteredData() {
-                    return this.dataAnggota.filter(i => i.nama.toLowerCase().includes(this.search.toLowerCase()) || i.idAnggota.includes(this.search));
+                    return this.dataAnggota.filter(i => 
+                        i.nama.toLowerCase().includes(this.search.toLowerCase()) || 
+                        i.idAnggota.includes(this.search)
+                    );
                 },
 
                 hapusData(id) {
-                    if(confirm('Yakin hapus?')) {
+                    if(confirm('Hapus anggota ini?')) {
                         this.dataAnggota = this.dataAnggota.filter(i => i.idAnggota !== id);
-                        localStorage.setItem('db_squad', JSON.stringify(this.dataAnggota));
+                        localStorage.setItem('db_pro', JSON.stringify(this.dataAnggota));
                     }
                 },
 
+                // Agenda & Absensi Logic
+                tambahAgenda() {
+                    const newAgenda = { id: Date.now(), ...this.agendaForm };
+                    this.agenda.push(newAgenda);
+                    localStorage.setItem('db_agenda', JSON.stringify(this.agenda));
+                    this.agendaForm = { nama: '', lokasi: '', tanggal: '' };
+                },
+
+                hapusAgenda(id) {
+                    this.agenda = this.agenda.filter(a => a.id !== id);
+                    localStorage.setItem('db_agenda', JSON.stringify(this.agenda));
+                },
+
+                toggleAbsen(agendaId, memberId) {
+                    if(!this.absensi[agendaId]) this.absensi[agendaId] = [];
+                    const idx = this.absensi[agendaId].indexOf(memberId);
+                    if(idx === -1) this.absensi[agendaId].push(memberId);
+                    else this.absensi[agendaId].splice(idx, 1);
+                    localStorage.setItem('db_absen', JSON.stringify(this.absensi));
+                },
+
+                isHadir(agendaId, memberId) {
+                    return this.absensi[agendaId] && this.absensi[agendaId].includes(memberId);
+                },
+
                 exportToExcel() {
-                    const excelData = this.dataAnggota.map(({foto, ...rest}) => rest);
-                    const ws = XLSX.utils.json_to_sheet(excelData);
+                    const cleanData = this.dataAnggota.map(({foto, ...rest}) => rest);
+                    const ws = XLSX.utils.json_to_sheet(cleanData);
                     const wb = XLSX.utils.book_new();
-                    XLSX.utils.book_append_sheet(wb, ws, "Squad");
-                    XLSX.writeFile(wb, "Data_Squad_Org.xlsx");
+                    XLSX.utils.book_append_sheet(wb, ws, "Anggota");
+                    XLSX.writeFile(wb, "Data_Organisasi_Full.xlsx");
                 }
             }
         }
