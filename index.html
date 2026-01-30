@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" x-data="sbHub()" :class="{ 'dark': darkMode }">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,49 +11,42 @@
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
-        
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f1f5f9; }
-        
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-        
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
         [x-cloak] { display: none !important; }
-        .input-box { @apply w-full bg-slate-50 border border-slate-200 text-slate-700 text-sm rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block p-3 transition-all duration-300; }
-        .glass-panel { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.5); }
+        .dark body { background-color: #0f172a; color: #f1f5f9; }
+        .input-box { @apply w-full bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-sm rounded-xl focus:ring-2 focus:ring-blue-500 p-3 transition-all; }
     </style>
-    
     <script>
         tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        brand: { 500: '#3b82f6', 600: '#2563eb', 900: '#1e3a8a' },
-                    },
-                    borderRadius: { '4xl': '2.5rem' }
-                }
-            }
+            darkMode: 'class',
+            theme: { extend: { colors: { brand: { 500: '#3b82f6', 600: '#2563eb' } } } }
         }
     </script>
 </head>
-<body x-data="sbHub()" x-init="initApp()" class="text-slate-800 antialiased h-screen flex overflow-hidden">
+<body class="bg-slate-50 text-slate-800 antialiased h-screen flex overflow-hidden">
 
-    <aside class="hidden lg:flex w-72 bg-white border-r border-slate-200 flex-col h-full z-30 shrink-0">
-        <div class="p-8 pb-4">
-            <div class="flex items-center gap-3 text-brand-600 mb-8">
-                <i class="fas fa-cubes text-3xl"></i>
+    <aside class="hidden lg:flex w-72 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 flex-col h-full z-30 shrink-0">
+        <div class="p-8">
+            <div class="flex items-center gap-3 mb-8">
+                <img src="https://lh3.googleusercontent.com/d/1srkfAZxOVGbtNat84k8BDGtWyTtD7ndE" class="w-12 h-12 rounded-lg object-contain bg-white p-1 shadow-sm">
                 <div>
-                    <h1 class="text-2xl font-extrabold tracking-tight leading-none">SB HUB</h1>
-                    <p class="text-xs text-slate-400 font-medium tracking-widest">SINAR BHAKTI</p>
+                    <h1 class="text-xl font-extrabold dark:text-white leading-none">SB HUB</h1>
+                    <p class="text-[10px] text-slate-400 font-bold tracking-widest">SINAR BHAKTI</p>
                 </div>
             </div>
+
+            <button @click="darkMode = !darkMode" class="w-full mb-6 flex items-center justify-between p-3 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 transition">
+                <span class="text-xs font-bold" x-text="darkMode ? 'Dark Mode' : 'Light Mode'"></span>
+                <i class="fas" :class="darkMode ? 'fa-moon text-yellow-400' : 'fa-sun text-orange-500'"></i>
+            </button>
         </div>
-        <nav class="flex-1 px-4 space-y-2 overflow-y-auto">
+
+        <nav class="flex-1 px-4 space-y-2">
             <template x-for="item in navItems" :key="item.id">
                 <button @click="activeTab = item.id" 
-                    :class="activeTab === item.id ? 'bg-brand-50 text-brand-600 shadow-sm' : 'text-slate-500 hover:bg-slate-50'"
-                    class="w-full flex items-center gap-4 px-5 py-4 rounded-2xl transition-all font-semibold group">
-                    <i class="fas w-6 text-center transition-transform group-hover:scale-110" :class="item.icon"></i>
+                    :class="activeTab === item.id ? 'bg-brand-600 text-white shadow-lg shadow-brand-200 dark:shadow-none' : 'text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800'"
+                    class="w-full flex items-center gap-4 px-5 py-3.5 rounded-2xl transition-all font-bold group">
+                    <i class="fas w-5 text-center" :class="item.icon"></i>
                     <span x-text="item.label"></span>
                 </button>
             </template>
@@ -61,76 +54,65 @@
     </aside>
 
     <main class="flex-1 relative h-full overflow-hidden flex flex-col">
-        <div class="lg:hidden bg-white p-4 border-b flex justify-between items-center z-20">
-            <span class="font-bold text-lg">SB HUB</span>
-            <div class="flex gap-4">
-                <template x-for="item in navItems" :key="item.id">
-                    <button @click="activeTab = item.id" :class="activeTab === item.id ? 'text-brand-600' : 'text-slate-400'"><i class="fas" :class="item.icon"></i></button>
-                </template>
-            </div>
-        </div>
-
-        <div class="flex-1 overflow-y-auto p-4 lg:p-8 pb-24">
+        <div class="flex-1 overflow-y-auto p-4 lg:p-10 pb-24">
             
             <div x-show="activeTab === 'dashboard'" x-transition class="space-y-8">
-                <h2 class="text-3xl font-extrabold text-slate-800">Dashboard</h2>
-                
-                <div class="relative w-full h-64 lg:h-96 rounded-[2rem] overflow-hidden shadow-2xl bg-slate-200 group">
+                <div class="relative w-full aspect-[16/9] max-h-[500px] rounded-[2.5rem] overflow-hidden shadow-2xl bg-slate-200">
                     <template x-for="(slide, index) in allDocumentation" :key="index">
-                        <div x-show="currentSlide === index" 
-                             class="absolute inset-0 transition-opacity duration-700">
+                        <div x-show="currentSlide === index" class="absolute inset-0">
                             <img :src="slide.img" class="w-full h-full object-cover">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-8">
-                                <div>
-                                    <span class="bg-brand-600 text-white text-xs font-bold px-3 py-1 rounded-full mb-2 inline-block" x-text="slide.eventName"></span>
-                                    <h3 class="text-white text-xl font-bold" x-text="slide.desc || 'Dokumentasi'"></h3>
-                                </div>
-                            </div>
                         </div>
                     </template>
-                    <div x-show="allDocumentation.length === 0" class="absolute inset-0 flex items-center justify-center text-slate-400 flex-col">
-                        <i class="fas fa-images text-4xl mb-2"></i>
-                        <p>Belum ada dokumentasi acara</p>
+                    <div x-show="allDocumentation.length === 0" class="absolute inset-0 flex items-center justify-center text-slate-400">
+                        <p>Belum ada dokumentasi (Ukuran Frame 1920x1080)</p>
                     </div>
-                    <button @click="prevSlide" class="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 p-3 rounded-full hover:bg-white text-white hover:text-black transition"><i class="fas fa-chevron-left"></i></button>
-                    <button @click="nextSlide" class="absolute right-4 top-1/2 -translate-y-1/2 bg-white/20 p-3 rounded-full hover:bg-white text-white hover:text-black transition"><i class="fas fa-chevron-right"></i></button>
                 </div>
 
-                <div class="grid grid-cols-2 gap-4">
-                     <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div @click="activeTab = 'finance'" class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm cursor-pointer hover:scale-105 transition">
                         <p class="text-xs font-bold text-slate-400 uppercase">Total Kas</p>
                         <h3 class="text-2xl font-extrabold text-emerald-600">Rp <span x-text="formatRupiah(balance)"></span></h3>
-                     </div>
-                     <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+                    </div>
+                    <div @click="activeTab = 'members'" class="bg-white dark:bg-slate-900 p-6 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm cursor-pointer hover:scale-105 transition">
                         <p class="text-xs font-bold text-slate-400 uppercase">Anggota</p>
-                        <h3 class="text-2xl font-extrabold text-blue-600" x-text="members.length + ' Orang'"></h3>
-                     </div>
+                        <div class="flex gap-4 items-end">
+                            <h3 class="text-2xl font-extrabold text-brand-600" x-text="members.length"></h3>
+                            <p class="text-[10px] text-slate-400 pb-1" x-text="`L: ${genderCount('L')} | P: ${genderCount('P')}`"></p>
+                        </div>
+                    </div>
+                    <div class="lg:col-span-1 bg-indigo-50 dark:bg-indigo-900/20 p-6 rounded-[2rem] cursor-pointer hover:bg-indigo-100 transition" @click="activeTab = 'events'">
+                        <p class="text-xs font-bold text-indigo-400 uppercase">Selesai</p>
+                        <h3 class="text-2xl font-extrabold text-indigo-700 dark:text-indigo-400" x-text="doneEvents.length"></h3>
+                    </div>
+                    <div class="lg:col-span-1 bg-amber-50 dark:bg-amber-900/20 p-6 rounded-[2rem] cursor-pointer hover:bg-amber-100 transition" @click="activeTab = 'events'">
+                        <p class="text-xs font-bold text-amber-500 uppercase">Mendatang</p>
+                        <h3 class="text-2xl font-extrabold text-amber-600" x-text="upcomingEvents.length"></h3>
+                    </div>
                 </div>
             </div>
 
             <div x-show="activeTab === 'members'" x-transition>
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">Data Anggota</h2>
-                    <button @click="openRegisterModal()" class="bg-brand-600 text-white px-5 py-3 rounded-xl font-bold shadow-lg hover:shadow-xl hover:-translate-y-1 transition text-sm">
-                        <i class="fas fa-plus mr-2"></i>Registrasi Anggota
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-extrabold">Data Anggota</h2>
+                    <button @click="openRegisterModal()" class="bg-brand-600 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-brand-200">
+                        <i class="fas fa-plus mr-2"></i>Registrasi
                     </button>
                 </div>
                 
-                <div class="relative mb-6">
-                    <input type="text" x-model="searchQuery" placeholder="Cari nama, ID, atau RT..." class="w-full bg-white border-none py-4 pl-12 pr-4 rounded-2xl shadow-sm focus:ring-2 focus:ring-brand-500">
-                    <i class="fas fa-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                </div>
-
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     <template x-for="m in filteredMembers" :key="m.id">
-                        <div @click="openDetailMember(m)" class="bg-white p-6 rounded-[2rem] border border-slate-100 hover:shadow-xl transition cursor-pointer relative group">
-                            <div class="absolute top-4 right-4 text-xs font-bold bg-slate-100 px-2 py-1 rounded-lg text-slate-500" x-text="'ID: ' + m.customId"></div>
-                            <div class="flex items-center gap-4">
-                                <img :src="m.photo || getDefaultAvatar(m.name)" class="w-16 h-16 rounded-2xl object-cover bg-slate-200">
+                        <div @click="openDetailMember(m)" class="bg-white dark:bg-slate-900 p-6 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 hover:shadow-xl transition cursor-pointer relative group">
+                            <div class="flex items-center gap-5">
+                                <img :src="m.photo || defaultPhoto" class="w-20 h-20 rounded-3xl object-cover bg-slate-100">
                                 <div>
-                                    <h3 class="font-bold text-lg text-slate-800 leading-tight line-clamp-1" x-text="m.name"></h3>
-                                    <p class="text-xs font-bold text-brand-600 uppercase mt-1" x-text="m.role || 'Anggota'"></p>
+                                    <p class="text-[10px] font-bold text-slate-400" x-text="m.customId"></p>
+                                    <h3 class="font-extrabold text-lg leading-tight" x-text="m.name"></h3>
+                                    <p class="text-xs font-bold text-brand-600 mt-1 uppercase" x-text="m.role"></p>
                                 </div>
+                            </div>
+                            <div class="absolute top-4 right-4 flex gap-2 opacity-0 group-hover:opacity-100 transition">
+                                <button @click.stop="editMember(m)" class="p-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-600 hover:text-white"><i class="fas fa-edit"></i></button>
+                                <button @click.stop="deleteMember(m.id)" class="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-600 hover:text-white"><i class="fas fa-trash"></i></button>
                             </div>
                         </div>
                     </template>
@@ -138,26 +120,35 @@
             </div>
 
             <div x-show="activeTab === 'events'" x-transition>
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold">Agenda & Absensi</h2>
-                    <button @click="openEventModal()" class="bg-brand-600 text-white px-5 py-3 rounded-xl font-bold shadow-lg text-sm">
-                        <i class="fas fa-calendar-plus mr-2"></i>Buat Acara
+                <div class="flex justify-between items-center mb-8">
+                    <h2 class="text-3xl font-extrabold">Manajemen Acara</h2>
+                    <button @click="openEventModal()" class="bg-slate-900 dark:bg-white dark:text-slate-900 text-white px-6 py-3 rounded-2xl font-bold">
+                        <i class="fas fa-calendar-plus mr-2"></i>Tambah Acara
                     </button>
                 </div>
 
                 <div class="space-y-4">
-                    <template x-for="evt in events" :key="evt.id">
-                        <div @click="openDetailEvent(evt)" class="bg-white p-6 rounded-[2rem] border border-slate-100 shadow-sm hover:bg-slate-50 cursor-pointer transition">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="text-[10px] font-bold bg-blue-100 text-blue-600 px-2 py-1 rounded-md" x-text="evt.date"></span>
-                                        <span class="text-[10px] font-bold bg-green-100 text-green-600 px-2 py-1 rounded-md" x-text="(evt.attendance || []).length + ' Hadir'"></span>
-                                    </div>
-                                    <h3 class="text-xl font-bold text-slate-800" x-text="evt.name"></h3>
-                                    <p class="text-sm text-slate-500"><i class="fas fa-map-marker-alt mr-1"></i> <span x-text="evt.location"></span></p>
+                    <template x-for="evt in sortedEvents" :key="evt.id">
+                        <div @click="openDetailEvent(evt)" class="bg-white dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 flex justify-between items-center cursor-pointer hover:bg-slate-50 transition relative group">
+                            <div class="flex gap-6 items-center">
+                                <div class="w-14 h-14 bg-slate-100 dark:bg-slate-800 rounded-2xl flex flex-col items-center justify-center font-bold">
+                                    <span class="text-xs text-brand-600" x-text="formatDay(evt.date)"></span>
+                                    <span class="text-lg" x-text="formatDateNum(evt.date)"></span>
                                 </div>
-                                <i class="fas fa-chevron-right text-slate-300"></i>
+                                <div>
+                                    <h3 class="text-xl font-bold" x-text="evt.name"></h3>
+                                    <p class="text-xs text-slate-500"><i class="fas fa-location-dot mr-1"></i> <span x-text="evt.location"></span></p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-4">
+                                <div class="text-right hidden md:block">
+                                    <p class="text-xs font-bold text-slate-400">Kehadiran</p>
+                                    <p class="font-bold text-brand-600" x-text="`${(evt.attendance || []).length} Peserta`"></p>
+                                </div>
+                                <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition">
+                                    <button @click.stop="editEvent(evt)" class="p-2 bg-blue-50 text-blue-600 rounded-lg"><i class="fas fa-edit"></i></button>
+                                    <button @click.stop="deleteEvent(evt.id)" class="p-2 bg-red-50 text-red-600 rounded-lg"><i class="fas fa-trash"></i></button>
+                                </div>
                             </div>
                         </div>
                     </template>
@@ -165,167 +156,133 @@
             </div>
 
             <div x-show="activeTab === 'finance'" x-transition>
-                <h2 class="text-2xl font-bold mb-6">Keuangan & Kas</h2>
-                
-                <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <div class="lg:col-span-4 space-y-6">
-                        <div class="bg-gradient-to-br from-indigo-600 to-violet-700 p-8 rounded-[2.5rem] text-white shadow-2xl relative overflow-hidden">
-                            <div class="absolute -top-10 -right-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-                            <p class="text-indigo-200 text-sm font-bold uppercase tracking-widest mb-1">Saldo Saat Ini</p>
-                            <h2 class="text-4xl lg:text-5xl font-extrabold tracking-tight">Rp <span x-text="formatRupiah(balance)"></span></h2>
-                            <div class="mt-6 flex gap-4">
-                                <div class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl flex-1">
-                                    <p class="text-[10px] opacity-70">Pemasukan</p>
-                                    <p class="font-bold text-sm text-emerald-300">+ Rp <span x-text="formatRupiah(totalIn)"></span></p>
+                 <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                    <div class="lg:col-span-5 space-y-6">
+                        <div class="bg-gradient-to-br from-slate-900 to-slate-800 dark:from-brand-600 dark:to-brand-900 p-8 rounded-[3rem] text-white shadow-2xl">
+                            <p class="text-slate-400 dark:text-white/60 text-xs font-bold uppercase tracking-widest mb-2">Total Saldo Kas</p>
+                            <h2 class="text-5xl font-extrabold tracking-tight">Rp <span x-text="formatRupiah(balance)"></span></h2>
+                            <div class="grid grid-cols-2 gap-4 mt-8">
+                                <div class="bg-white/10 p-4 rounded-2xl">
+                                    <p class="text-[10px] uppercase font-bold text-emerald-400">Pemasukan</p>
+                                    <p class="text-lg font-bold">Rp <span x-text="formatRupiah(totalIn)"></span></p>
                                 </div>
-                                <div class="bg-white/20 backdrop-blur-md px-4 py-2 rounded-xl flex-1">
-                                    <p class="text-[10px] opacity-70">Pengeluaran</p>
-                                    <p class="font-bold text-sm text-pink-300">- Rp <span x-text="formatRupiah(totalOut)"></span></p>
+                                <div class="bg-white/10 p-4 rounded-2xl">
+                                    <p class="text-[10px] uppercase font-bold text-rose-400">Pengeluaran</p>
+                                    <p class="text-lg font-bold">Rp <span x-text="formatRupiah(totalOut)"></span></p>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-                            <h4 class="font-bold mb-4 flex items-center gap-2"><i class="fas fa-edit text-brand-600"></i> Catat Transaksi</h4>
-                            <form @submit.prevent="addTransaction" class="space-y-3">
-                                <div class="grid grid-cols-2 gap-2">
-                                    <button type="button" @click="finForm.type = 'in'" :class="finForm.type === 'in' ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-200' : 'bg-slate-100 text-slate-400'" class="py-2 rounded-xl font-bold text-sm transition">Masuk</button>
-                                    <button type="button" @click="finForm.type = 'out'" :class="finForm.type === 'out' ? 'bg-pink-500 text-white shadow-lg shadow-pink-200' : 'bg-slate-100 text-slate-400'" class="py-2 rounded-xl font-bold text-sm transition">Keluar</button>
-                                </div>
-                                <input type="number" x-model="finForm.amount" class="input-box" placeholder="Nominal (Rp)">
-                                <input type="text" x-model="finForm.desc" class="input-box" placeholder="Keterangan Transaksi">
+                        <div class="bg-white dark:bg-slate-900 p-6 rounded-[2.5rem] border border-slate-100 dark:border-slate-800">
+                            <h4 class="font-bold mb-4">Catat Transaksi</h4>
+                            <div class="flex gap-2 mb-4">
+                                <button @click="finForm.type = 'in'" :class="finForm.type === 'in' ? 'bg-emerald-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'" class="flex-1 py-3 rounded-xl font-bold transition">Masuk</button>
+                                <button @click="finForm.type = 'out'" :class="finForm.type === 'out' ? 'bg-rose-600 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-500'" class="flex-1 py-3 rounded-xl font-bold transition">Keluar</button>
+                            </div>
+                            <div class="space-y-3">
+                                <input type="number" x-model="finForm.amount" class="input-box" placeholder="Nominal">
+                                <input type="text" x-model="finForm.desc" class="input-box" placeholder="Keterangan">
                                 <input type="date" x-model="finForm.date" class="input-box">
-                                <button type="submit" class="w-full bg-slate-900 text-white py-3 rounded-xl font-bold hover:bg-slate-800">Simpan</button>
-                            </form>
+                                <button @click="addTransaction" class="w-full bg-brand-600 text-white py-4 rounded-xl font-bold shadow-lg shadow-brand-200">Simpan Transaksi</button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="lg:col-span-8">
-                        <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden h-full min-h-[500px]">
-                            <div class="p-6 border-b border-slate-50 flex justify-between items-center">
-                                <h3 class="font-bold text-lg">Riwayat Transaksi</h3>
-                                <span class="text-xs bg-slate-100 px-3 py-1 rounded-full text-slate-500" x-text="transactions.length + ' Transaksi'"></span>
+                    <div class="lg:col-span-7">
+                        <div class="bg-white dark:bg-slate-900 rounded-[3rem] border border-slate-100 dark:border-slate-800 overflow-hidden min-h-[500px]">
+                            <div class="p-8 border-b border-slate-50 dark:border-slate-800 flex justify-between items-center">
+                                <h3 class="font-extrabold text-xl text-slate-800 dark:text-white">Riwayat Kas</h3>
+                                <button class="text-xs font-bold text-brand-600">Lihat Semua</button>
                             </div>
-                            <div class="overflow-y-auto max-h-[600px] p-2">
+                            <div class="p-4 space-y-2">
                                 <template x-for="t in transactions.slice().reverse()" :key="t.id">
-                                    <div class="p-4 mb-2 rounded-2xl flex justify-between items-center hover:bg-slate-50 transition border border-transparent hover:border-slate-100 group">
+                                    <div class="flex items-center justify-between p-5 rounded-3xl hover:bg-slate-50 dark:hover:bg-slate-800 group transition">
                                         <div class="flex items-center gap-4">
-                                            <div class="w-10 h-10 rounded-full flex items-center justify-center" 
-                                                 :class="t.type === 'in' ? 'bg-emerald-100 text-emerald-600' : 'bg-pink-100 text-pink-600'">
-                                                <i class="fas" :class="t.type === 'in' ? 'fa-arrow-down' : 'fa-arrow-up'"></i>
+                                            <div :class="t.type === 'in' ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-600'" class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl">
+                                                <i class="fas" :class="t.type === 'in' ? 'fa-arrow-trend-up' : 'fa-arrow-trend-down'"></i>
                                             </div>
                                             <div>
-                                                <p class="font-bold text-slate-800" x-text="t.desc"></p>
-                                                <p class="text-xs text-slate-400" x-text="t.date"></p>
+                                                <p class="font-bold text-slate-800 dark:text-slate-200" x-text="t.desc"></p>
+                                                <p class="text-xs text-slate-400" x-text="formatDisplayDate(t.date)"></p>
                                             </div>
                                         </div>
                                         <div class="text-right">
-                                            <p class="font-bold font-mono" :class="t.type === 'in' ? 'text-emerald-600' : 'text-pink-600'">
-                                                <span x-text="t.type === 'in' ? '+' : '-'"></span> Rp <span x-text="formatRupiah(t.amount)"></span>
-                                            </p>
-                                            <button @click="deleteTransaction(t.id)" class="text-xs text-slate-300 hover:text-red-500 opacity-0 group-hover:opacity-100 transition">Hapus</button>
+                                            <p class="font-extrabold text-lg" :class="t.type === 'in' ? 'text-emerald-600' : 'text-rose-600'" x-text="(t.type === 'in' ? '+' : '-') + ' ' + formatRupiah(t.amount)"></p>
+                                            <button @click="deleteTransaction(t.id)" class="text-[10px] text-red-400 opacity-0 group-hover:opacity-100 transition">Hapus</button>
                                         </div>
                                     </div>
                                 </template>
                             </div>
                         </div>
                     </div>
-                </div>
+                 </div>
             </div>
 
-            <div x-show="activeTab === 'structure'" x-transition class="flex flex-col items-center pb-20">
-                <h2 class="text-2xl font-bold mb-10">Struktur Organisasi</h2>
+            <div x-show="activeTab === 'structure'" x-transition>
+                 <h2 class="text-3xl font-extrabold text-center mb-12">Struktur Organisasi</h2>
+                 <div class="flex flex-col items-center gap-12 w-full">
+                    <template x-if="getRoleMember('Ketua')">
+                        <div class="flex flex-col items-center" @click="openDetailMember(getRoleMember('Ketua'))">
+                            <img :src="getRoleMember('Ketua').photo || defaultPhoto" class="w-32 h-32 rounded-full border-4 border-brand-500 shadow-xl object-cover cursor-pointer hover:scale-110 transition">
+                            <span class="mt-4 bg-brand-600 text-white px-5 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest">Ketua</span>
+                            <h4 class="mt-2 font-extrabold text-xl" x-text="getRoleMember('Ketua').name"></h4>
+                        </div>
+                    </template>
 
-                <div class="relative flex flex-col items-center gap-10 w-full max-w-5xl">
-                    
-                    <div class="flex flex-col items-center z-10">
-                        <template x-if="getRoleMember('Ketua')">
-                            <div class="flex flex-col items-center cursor-pointer hover:scale-105 transition" @click="openDetailMember(getRoleMember('Ketua'))">
-                                <img :src="getRoleMember('Ketua').photo || getDefaultAvatar('Ketua')" class="w-24 h-24 rounded-full border-4 border-brand-500 object-cover shadow-xl bg-white">
-                                <div class="mt-2 bg-brand-600 text-white px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest">Ketua</div>
-                                <div class="font-bold mt-1 text-lg" x-text="getRoleMember('Ketua').name"></div>
+                    <template x-if="getRoleMember('Wakil Ketua')">
+                        <div class="flex flex-col items-center" @click="openDetailMember(getRoleMember('Wakil Ketua'))">
+                            <img :src="getRoleMember('Wakil Ketua').photo || defaultPhoto" class="w-28 h-28 rounded-full border-4 border-blue-400 shadow-lg object-cover cursor-pointer hover:scale-110 transition">
+                            <span class="mt-3 bg-blue-500 text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Wakil Ketua</span>
+                            <h4 class="mt-1 font-bold text-lg" x-text="getRoleMember('Wakil Ketua').name"></h4>
+                        </div>
+                    </template>
+
+                    <div class="flex flex-wrap justify-center gap-16 md:gap-32">
+                         <template x-if="getRoleMember('Sekretaris')">
+                            <div class="flex flex-col items-center" @click="openDetailMember(getRoleMember('Sekretaris'))">
+                                <img :src="getRoleMember('Sekretaris').photo || defaultPhoto" class="w-24 h-24 rounded-full border-4 border-slate-300 object-cover cursor-pointer hover:scale-110 transition">
+                                <span class="mt-3 bg-slate-500 text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Sekretaris</span>
+                                <h4 class="mt-1 font-bold text-base" x-text="getRoleMember('Sekretaris').name"></h4>
                             </div>
                         </template>
-                        <template x-if="!getRoleMember('Ketua')">
-                            <div class="opacity-50 text-center"><div class="w-24 h-24 bg-slate-200 rounded-full mb-2 mx-auto"></div><p>Belum ada Ketua</p></div>
-                        </template>
-                    </div>
-
-                    <div class="w-px h-10 bg-slate-300"></div>
-
-                    <div class="flex flex-col items-center z-10">
-                        <template x-if="getRoleMember('Wakil Ketua')">
-                            <div class="flex flex-col items-center cursor-pointer hover:scale-105 transition" @click="openDetailMember(getRoleMember('Wakil Ketua'))">
-                                <img :src="getRoleMember('Wakil Ketua').photo || getDefaultAvatar('Wakil')" class="w-20 h-20 rounded-full border-4 border-blue-400 object-cover shadow-lg bg-white">
-                                <div class="mt-2 bg-blue-500 text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Wakil Ketua</div>
-                                <div class="font-bold mt-1" x-text="getRoleMember('Wakil Ketua').name"></div>
+                        <template x-if="getRoleMember('Bendahara')">
+                            <div class="flex flex-col items-center" @click="openDetailMember(getRoleMember('Bendahara'))">
+                                <img :src="getRoleMember('Bendahara').photo || defaultPhoto" class="w-24 h-24 rounded-full border-4 border-slate-300 object-cover cursor-pointer hover:scale-110 transition">
+                                <span class="mt-3 bg-slate-500 text-white px-4 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Bendahara</span>
+                                <h4 class="mt-1 font-bold text-base" x-text="getRoleMember('Bendahara').name"></h4>
                             </div>
                         </template>
-                        <template x-if="!getRoleMember('Wakil Ketua')">
-                            <div class="opacity-50 text-center"><div class="w-20 h-20 bg-slate-200 rounded-full mb-2 mx-auto"></div><p class="text-sm">Kosong</p></div>
-                        </template>
                     </div>
 
-                    <div class="w-1/2 h-px bg-slate-300 relative">
-                        <div class="absolute left-1/2 -top-10 bottom-0 w-px bg-slate-300"></div> <div class="absolute left-0 top-0 h-8 w-px bg-slate-300"></div> <div class="absolute right-0 top-0 h-8 w-px bg-slate-300"></div> </div>
-
-                    <div class="flex justify-around w-full max-w-2xl gap-8 z-10 -mt-2">
-                        <div class="flex flex-col items-center">
-                            <template x-if="getRoleMember('Sekretaris')">
-                                <div class="flex flex-col items-center cursor-pointer hover:scale-105 transition" @click="openDetailMember(getRoleMember('Sekretaris'))">
-                                    <img :src="getRoleMember('Sekretaris').photo || getDefaultAvatar('Sek')" class="w-16 h-16 rounded-full border-2 border-indigo-400 object-cover bg-white">
-                                    <div class="mt-2 bg-indigo-100 text-indigo-700 px-3 py-0.5 rounded-full text-[10px] font-bold uppercase">Sekretaris</div>
-                                    <div class="font-bold mt-1 text-sm" x-text="getRoleMember('Sekretaris').name"></div>
-                                </div>
-                            </template>
-                            <template x-if="!getRoleMember('Sekretaris')"><span class="text-xs text-slate-400 italic">Sekretaris Kosong</span></template>
-                        </div>
-                        
-                        <div class="flex flex-col items-center">
-                            <template x-if="getRoleMember('Bendahara')">
-                                <div class="flex flex-col items-center cursor-pointer hover:scale-105 transition" @click="openDetailMember(getRoleMember('Bendahara'))">
-                                    <img :src="getRoleMember('Bendahara').photo || getDefaultAvatar('Ben')" class="w-16 h-16 rounded-full border-2 border-indigo-400 object-cover bg-white">
-                                    <div class="mt-2 bg-indigo-100 text-indigo-700 px-3 py-0.5 rounded-full text-[10px] font-bold uppercase">Bendahara</div>
-                                    <div class="font-bold mt-1 text-sm" x-text="getRoleMember('Bendahara').name"></div>
-                                </div>
-                            </template>
-                             <template x-if="!getRoleMember('Bendahara')"><span class="text-xs text-slate-400 italic">Bendahara Kosong</span></template>
-                        </div>
-                    </div>
-
-                    <div class="w-full border-t border-slate-200 pt-8 text-center">
-                        <h4 class="text-sm font-bold text-slate-400 uppercase tracking-widest mb-6">Jajaran Pengurus & Divisi</h4>
+                    <div class="w-full border-t dark:border-slate-800 pt-10">
+                        <p class="text-center text-xs font-bold text-slate-400 uppercase tracking-[0.3em] mb-10">Jajaran Pengurus Divisi</p>
                         <div class="flex flex-wrap justify-center gap-6">
-                            <template x-for="m in getMembersByRoleType('Pengurus')">
-                                <div @click="openDetailMember(m)" class="bg-white px-4 py-3 rounded-xl shadow-sm border border-slate-100 flex items-center gap-3 cursor-pointer hover:bg-slate-50 transition">
-                                    <img :src="m.photo || getDefaultAvatar(m.name)" class="w-10 h-10 rounded-full object-cover">
-                                    <div class="text-left">
-                                        <div class="font-bold text-sm" x-text="m.name"></div>
-                                        <div class="text-[10px] text-brand-600 font-bold uppercase" x-text="m.division || 'Pengurus'"></div>
+                            <template x-for="m in pengurusDivisi" :key="m.id">
+                                <div @click="openDetailMember(m)" class="bg-white dark:bg-slate-900 px-6 py-4 rounded-3xl border border-slate-100 dark:border-slate-800 flex items-center gap-4 cursor-pointer hover:bg-brand-50 transition">
+                                    <img :src="m.photo || defaultPhoto" class="w-12 h-12 rounded-2xl object-cover">
+                                    <div>
+                                        <p class="font-extrabold text-sm" x-text="m.name"></p>
+                                        <p class="text-[10px] font-bold text-brand-600 uppercase" x-text="m.division || 'Pengurus'"></p>
                                     </div>
                                 </div>
                             </template>
-                            <div x-show="getMembersByRoleType('Pengurus').length === 0" class="text-sm text-slate-400 italic">Belum ada pengurus divisi.</div>
                         </div>
                     </div>
 
-                    <div class="mt-8 bg-slate-900 text-white px-8 py-3 rounded-full shadow-xl font-bold flex items-center gap-3">
-                        <i class="fas fa-users"></i>
-                        <span>Total Anggota: <span x-text="members.filter(m => !['Ketua','Wakil Ketua','Sekretaris','Bendahara'].includes(m.role)).length"></span></span>
+                    <div class="bg-slate-900 dark:bg-brand-600 text-white px-10 py-4 rounded-full font-extrabold shadow-2xl">
+                        Total Seluruh Anggota: <span x-text="members.length"></span> Orang
                     </div>
-
-                </div>
+                 </div>
             </div>
 
             <div x-show="activeTab === 'gallery'" x-transition>
-                <h2 class="text-2xl font-bold mb-6">Galeri Kegiatan</h2>
+                <h2 class="text-3xl font-extrabold mb-8">Galeri Dokumentasi</h2>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    <template x-for="(doc, idx) in allDocumentation" :key="idx">
-                        <div class="relative group rounded-2xl overflow-hidden aspect-square shadow-md cursor-pointer">
-                            <img :src="doc.img" class="w-full h-full object-cover transition duration-500 group-hover:scale-110">
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition p-4 flex flex-col justify-end">
-                                <p class="text-white font-bold text-sm" x-text="doc.eventName"></p>
-                                <button @click="deleteDocImage(doc.eventId, doc.imgIdx)" class="absolute top-2 right-2 text-white bg-red-500/80 p-1.5 rounded-lg hover:bg-red-600"><i class="fas fa-trash text-xs"></i></button>
+                    <template x-for="pic in allDocumentation">
+                        <div class="aspect-square rounded-3xl overflow-hidden shadow-lg group relative">
+                            <img :src="pic.img" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition p-4 flex flex-col justify-end">
+                                <p class="text-white text-xs font-bold" x-text="pic.eventName"></p>
                             </div>
                         </div>
                     </template>
@@ -336,55 +293,43 @@
     </main>
 
     <div x-show="modals.member" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" x-cloak>
-        <div class="bg-white w-full max-w-2xl rounded-[2rem] p-8 shadow-2xl max-h-[90vh] overflow-y-auto">
-            <h3 class="text-2xl font-bold mb-6 border-b pb-4">Form Registrasi Anggota</h3>
-            <form @submit.prevent="saveMember" class="space-y-5">
-                <div class="flex justify-center mb-6">
-                    <div class="relative w-28 h-28 rounded-full bg-slate-100 border-2 border-dashed border-slate-300 overflow-hidden group">
-                        <img :src="memForm.photo || getDefaultAvatar('User')" class="w-full h-full object-cover">
-                        <input type="file" @change="handlePhotoUpload($event, 'memForm')" class="absolute inset-0 opacity-0 cursor-pointer">
-                        <div class="absolute inset-0 bg-black/40 flex flex-col items-center justify-center text-white text-xs font-bold opacity-0 group-hover:opacity-100 transition">
-                            <i class="fas fa-camera text-xl mb-1"></i> Ubah
+        <div class="bg-white dark:bg-slate-900 w-full max-w-2xl rounded-[3rem] p-10 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-2xl font-extrabold">Formulir Anggota</h3>
+                <button @click="modals.member = false" class="text-slate-400 hover:text-red-500">✕ Tutup</button>
+            </div>
+
+            <form @submit.prevent="saveMember" class="space-y-6">
+                <div class="flex flex-col items-center mb-8">
+                    <div class="relative w-32 h-32 rounded-[2.5rem] bg-slate-100 dark:bg-slate-800 overflow-hidden border-2 border-dashed border-slate-300">
+                        <img :src="memForm.photo || defaultPhoto" class="w-full h-full object-cover">
+                        <input type="file" @change="handleFileUpload($event, 'memForm', 'photo')" class="absolute inset-0 opacity-0 cursor-pointer">
+                        <div class="absolute inset-0 flex items-center justify-center bg-black/20 text-white opacity-0 hover:opacity-100 pointer-events-none transition">
+                            <i class="fas fa-camera text-2xl"></i>
                         </div>
                     </div>
+                    <p class="text-[10px] text-slate-400 mt-2 font-bold uppercase">Klik gambar untuk upload</p>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div><label class="font-bold text-xs ml-1">Nama Lengkap</label><input x-model="memForm.name" required class="input-box" placeholder="Nama Lengkap"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div><label class="text-xs font-bold ml-1 uppercase text-slate-400">Nama Lengkap</label><input x-model="memForm.name" required class="input-box"></div>
                     <div>
-                        <label class="font-bold text-xs ml-1">Jabatan</label>
-                        <select x-model="memForm.role" class="input-box">
-                            <option value="Anggota">Anggota (Default)</option>
-                            <option value="Ketua">Ketua</option>
-                            <option value="Wakil Ketua">Wakil Ketua</option>
-                            <option value="Sekretaris">Sekretaris</option>
-                            <option value="Bendahara">Bendahara</option>
-                            <option value="Pengurus">Pengurus (Divisi)</option>
+                        <label class="text-xs font-bold ml-1 uppercase text-slate-400">Jenis Kelamin</label>
+                        <select x-model="memForm.gender" class="input-box" required>
+                            <option value="L">Laki-laki</option>
+                            <option value="P">Perempuan</option>
                         </select>
                     </div>
                 </div>
 
-                <div x-show="memForm.role === 'Pengurus'" class="bg-blue-50 p-3 rounded-xl">
-                    <label class="font-bold text-xs ml-1 text-blue-800">Nama Divisi</label>
-                    <input x-model="memForm.division" class="input-box border-blue-200" placeholder="Contoh: Keamanan, Konsumsi...">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div><label class="text-xs font-bold ml-1 uppercase text-slate-400">Tempat Lahir</label><input x-model="memForm.pob" required class="input-box" placeholder="Contoh: Semarang"></div>
+                    <div><label class="text-xs font-bold ml-1 uppercase text-slate-400">Tanggal Lahir</label><input type="date" x-model="memForm.dob" required class="input-box"></div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div class="relative">
-                        <label class="font-bold text-xs ml-1">Tempat Lahir (Simulasi Google API)</label>
-                        <input x-model="pobSearch" @input="searchCity" class="input-box" placeholder="Ketik nama kota...">
-                        <div x-show="citySuggestions.length > 0" class="absolute z-10 w-full bg-white shadow-lg rounded-xl mt-1 border border-slate-100 max-h-40 overflow-y-auto">
-                            <template x-for="city in citySuggestions">
-                                <div @click="selectCity(city)" class="p-3 hover:bg-slate-50 cursor-pointer text-sm font-medium border-b border-slate-50 last:border-0" x-text="city"></div>
-                            </template>
-                        </div>
-                    </div>
-                    <div><label class="font-bold text-xs ml-1">Tanggal Lahir</label><input type="date" x-model="memForm.dob" required class="input-box"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="font-bold text-xs ml-1">RT (1-6)</label>
+                        <label class="text-xs font-bold ml-1 uppercase text-slate-400">RT (1-6)</label>
                         <select x-model="memForm.rt" required class="input-box">
                             <option value="01">RT 01</option>
                             <option value="02">RT 02</option>
@@ -394,376 +339,287 @@
                             <option value="06">RT 06</option>
                         </select>
                     </div>
-                    <div><label class="font-bold text-xs ml-1">Tanggal Bergabung</label><input type="date" x-model="memForm.joinedDate" required class="input-box"></div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div><label class="font-bold text-xs ml-1">Pekerjaan</label><input x-model="memForm.job" class="input-box" placeholder="Contoh: Karyawan"></div>
-                    <div><label class="font-bold text-xs ml-1">No. WhatsApp</label><input type="number" x-model="memForm.wa" class="input-box" placeholder="628xxxxxx"></div>
-                </div>
-
-                <div>
-                    <div class="flex justify-between items-center mb-2">
-                        <label class="font-bold text-xs ml-1">Social Media</label>
-                        <button type="button" @click="addSocial" class="text-xs text-brand-600 font-bold">+ Tambah</button>
+                    <div>
+                        <label class="text-xs font-bold ml-1 uppercase text-slate-400">Jabatan</label>
+                        <select x-model="memForm.role" class="input-box">
+                            <option value="Anggota">Anggota</option>
+                            <option value="Ketua">Ketua</option>
+                            <option value="Wakil Ketua">Wakil Ketua</option>
+                            <option value="Sekretaris">Sekretaris</option>
+                            <option value="Bendahara">Bendahara</option>
+                            <option value="Pengurus">Pengurus (Divisi)</option>
+                        </select>
                     </div>
-                    <div class="space-y-2">
-                        <template x-for="(soc, idx) in memForm.socials" :key="idx">
-                            <div class="flex gap-2">
-                                <select x-model="soc.platform" class="w-1/3 input-box py-2 text-xs">
-                                    <option value="instagram">Instagram</option>
-                                    <option value="tiktok">TikTok</option>
-                                    <option value="facebook">Facebook</option>
-                                    <option value="twitter">X / Twitter</option>
-                                    <option value="linkedin">LinkedIn</option>
-                                </select>
-                                <input x-model="soc.link" placeholder="Link URL Profile..." class="flex-1 input-box py-2 text-xs">
-                                <button type="button" @click="removeSocial(idx)" class="text-red-400 hover:text-red-600"><i class="fas fa-times"></i></button>
+                </div>
+
+                <div x-show="memForm.role === 'Pengurus'"><label class="text-xs font-bold ml-1 uppercase text-brand-600">Nama Divisi</label><input x-model="memForm.division" class="input-box" placeholder="Keamanan / Konsumsi / dll"></div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div><label class="text-xs font-bold ml-1 uppercase text-slate-400">Tanggal Gabung</label><input type="date" x-model="memForm.joinedDate" required class="input-box"></div>
+                    <div><label class="text-xs font-bold ml-1 uppercase text-slate-400">Pekerjaan</label><input x-model="memForm.job" class="input-box"></div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div><label class="text-xs font-bold ml-1 uppercase text-slate-400">No. WhatsApp</label><input type="number" x-model="memForm.wa" class="input-box" placeholder="628xxx"></div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1"><label class="text-xs font-bold uppercase text-slate-400">Social Media</label><button type="button" @click="addSocial" class="text-[10px] text-brand-600 font-bold">+ Tambah</button></div>
+                        <template x-for="(s, i) in memForm.socials" :key="i">
+                            <div class="flex gap-2 mb-2">
+                                <select x-model="s.platform" class="w-1/3 input-box py-1.5 text-xs"><option value="instagram">Instagram</option><option value="tiktok">TikTok</option></select>
+                                <input x-model="s.link" class="flex-1 input-box py-1.5 text-xs" placeholder="Username/Link">
+                                <button type="button" @click="memForm.socials.splice(i, 1)" class="text-red-400">✕</button>
                             </div>
                         </template>
                     </div>
                 </div>
 
-                <div class="flex gap-3 pt-4">
-                    <button type="button" @click="modals.member = false" class="flex-1 py-3 bg-slate-100 text-slate-500 rounded-xl font-bold hover:bg-slate-200">Batal</button>
-                    <button type="submit" class="flex-1 py-3 bg-slate-900 text-white rounded-xl font-bold shadow-lg hover:bg-slate-800">Simpan Data</button>
-                </div>
+                <button type="submit" class="w-full bg-slate-900 dark:bg-brand-600 text-white py-4 rounded-2xl font-extrabold shadow-xl">Simpan Data Anggota</button>
             </form>
         </div>
     </div>
 
     <div x-show="modals.detailMember" class="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4" x-cloak>
-        <div class="bg-white w-full max-w-lg rounded-[2.5rem] overflow-hidden shadow-2xl relative" @click.away="modals.detailMember = false">
-            <div class="h-32 bg-gradient-to-r from-brand-600 to-indigo-600 relative">
-                <button @click="modals.detailMember = false" class="absolute top-4 right-4 bg-black/20 text-white p-2 rounded-full hover:bg-white hover:text-black transition">✕</button>
-            </div>
-            
-            <div class="px-8 pb-8 -mt-16 text-center">
-                <img :src="selectedMember?.photo || getDefaultAvatar(selectedMember?.name)" class="w-32 h-32 rounded-[2rem] border-4 border-white shadow-lg mx-auto object-cover bg-white">
+        <div class="bg-white dark:bg-slate-900 w-full max-w-lg rounded-[3rem] overflow-hidden shadow-2xl relative">
+            <div class="h-32 bg-slate-900 dark:bg-brand-600"></div>
+            <div class="px-8 pb-10 -mt-16 text-center">
+                <img :src="selectedMember?.photo || defaultPhoto" class="w-32 h-32 rounded-[2.5rem] border-4 border-white dark:border-slate-900 shadow-xl mx-auto object-cover">
+                <h2 class="text-3xl font-extrabold mt-6" x-text="selectedMember?.name"></h2>
+                <span class="inline-block mt-2 bg-brand-50 text-brand-600 px-4 py-1 rounded-full text-xs font-bold uppercase" x-text="selectedMember?.role"></span>
                 
-                <h2 class="text-2xl font-extrabold mt-4 text-slate-800" x-text="selectedMember?.name"></h2>
-                <div class="flex justify-center gap-2 mt-2">
-                    <span class="bg-brand-50 text-brand-600 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest" x-text="selectedMember?.role"></span>
-                    <span class="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-xs font-bold" x-text="'ID: ' + selectedMember?.customId"></span>
-                </div>
-
                 <div class="grid grid-cols-2 gap-4 mt-8 text-left">
-                    <div class="bg-slate-50 p-4 rounded-2xl">
-                        <p class="text-[10px] text-slate-400 uppercase font-bold">Tempat, Tgl Lahir</p>
-                        <p class="font-bold text-sm text-slate-700"><span x-text="selectedMember?.pob || '-'"></span>, <span x-text="selectedMember?.dob"></span></p>
+                    <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase">TTL</p>
+                        <p class="text-xs font-bold" x-text="`${selectedMember?.pob}, ${formatDisplayDate(selectedMember?.dob)}`"></p>
                     </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl">
-                        <p class="text-[10px] text-slate-400 uppercase font-bold">Domisili</p>
-                        <p class="font-bold text-sm text-slate-700">RT <span x-text="selectedMember?.rt"></span></p>
-                    </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl">
-                        <p class="text-[10px] text-slate-400 uppercase font-bold">Pekerjaan</p>
-                        <p class="font-bold text-sm text-slate-700" x-text="selectedMember?.job || '-'"></p>
-                    </div>
-                    <div class="bg-slate-50 p-4 rounded-2xl">
-                        <p class="text-[10px] text-slate-400 uppercase font-bold">Bergabung Sejak</p>
-                        <p class="font-bold text-sm text-slate-700" x-text="selectedMember?.joinedDate"></p>
+                    <div class="bg-slate-50 dark:bg-slate-800 p-4 rounded-2xl">
+                        <p class="text-[10px] text-slate-400 font-bold uppercase">ID Anggota</p>
+                        <p class="text-xs font-bold" x-text="selectedMember?.customId"></p>
                     </div>
                 </div>
 
-                <div class="flex justify-center gap-4 mt-6">
-                    <a x-show="selectedMember?.wa" :href="'https://wa.me/' + selectedMember?.wa" target="_blank" class="flex-1 bg-green-500 text-white py-3 rounded-xl font-bold shadow-lg hover:bg-green-600 flex items-center justify-center gap-2">
-                        <i class="fab fa-whatsapp text-xl"></i> WhatsApp
-                    </a>
-                    <div class="flex gap-2">
-                        <template x-for="soc in selectedMember?.socials">
-                            <a :href="soc.link" target="_blank" class="w-12 h-12 bg-slate-100 text-slate-600 rounded-xl flex items-center justify-center hover:bg-brand-600 hover:text-white transition text-xl">
-                                <i class="fab" :class="'fa-' + soc.platform"></i>
-                            </a>
-                        </template>
-                    </div>
-                </div>
-
-                <button @click="editMember(selectedMember); modals.detailMember = false" class="mt-6 w-full py-3 border border-slate-200 text-slate-500 font-bold rounded-xl hover:bg-slate-50">Edit Data Anggota</button>
-            </div>
-        </div>
-    </div>
-
-    <div x-show="modals.detailEvent" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" x-cloak>
-        <div class="bg-white w-full max-w-4xl rounded-[2rem] p-8 shadow-2xl h-[85vh] flex flex-col">
-            <div class="flex justify-between items-start mb-6">
-                <div>
-                    <span class="text-xs font-bold bg-blue-100 text-blue-600 px-3 py-1 rounded-full mb-2 inline-block" x-text="selectedEvent?.date"></span>
-                    <h2 class="text-3xl font-extrabold text-slate-800" x-text="selectedEvent?.name"></h2>
-                    <p class="text-slate-500 flex items-center gap-2 mt-1"><i class="fas fa-map-marker-alt text-red-400"></i> <span x-text="selectedEvent?.location"></span></p>
-                </div>
-                <div class="flex gap-2">
-                    <button @click="addDocumentation(selectedEvent)" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold"><i class="fas fa-camera mr-2"></i>Upload Dok</button>
-                    <button @click="modals.detailEvent = false" class="bg-slate-100 text-slate-500 w-10 h-10 rounded-xl hover:bg-red-100 hover:text-red-500 font-bold">✕</button>
-                </div>
-            </div>
-
-            <div class="flex-1 overflow-hidden flex flex-col md:flex-row gap-8">
-                <div class="flex-1 flex flex-col bg-slate-50 rounded-3xl border border-slate-100 p-6 overflow-hidden">
-                    <div class="flex justify-between items-center mb-4">
-                        <h4 class="font-bold flex items-center gap-2"><i class="fas fa-clipboard-check text-brand-600"></i> Daftar Absensi</h4>
-                        <input x-model="searchAbsensi" placeholder="Cari Nama/ID/RT..." class="bg-white border-none text-xs p-2 rounded-lg shadow-sm w-40">
-                    </div>
-                    
-                    <div class="overflow-y-auto flex-1 space-y-2 pr-2">
-                        <template x-for="m in filterAbsensiMembers" :key="m.id">
-                            <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 rounded-full bg-slate-200 overflow-hidden">
-                                        <img :src="m.photo || getDefaultAvatar(m.name)" class="w-full h-full object-cover">
-                                    </div>
-                                    <div>
-                                        <p class="text-xs font-bold" x-text="m.name"></p>
-                                        <p class="text-[10px] text-slate-400">RT <span x-text="m.rt"></span> | ID: <span x-text="m.customId"></span></p>
-                                    </div>
-                                </div>
-                                <button @click="toggleAttendance(selectedEvent.id, m.id)" 
-                                    class="px-3 py-1.5 rounded-lg text-[10px] font-bold transition"
-                                    :class="isAttended(selectedEvent.id, m.id) ? 'bg-green-500 text-white shadow-md shadow-green-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'">
-                                    <span x-text="isAttended(selectedEvent.id, m.id) ? 'HADIR' : 'ABSEN'"></span>
-                                </button>
+                <div class="mt-8 text-left">
+                    <h4 class="text-xs font-bold uppercase text-slate-400 mb-3 ml-1">Riwayat Kehadiran Acara</h4>
+                    <div class="space-y-2 max-h-40 overflow-y-auto pr-2">
+                        <template x-for="ev in getMemberAttendanceHistory(selectedMember?.id)">
+                            <div class="flex justify-between items-center p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
+                                <p class="text-xs font-bold" x-text="ev.name"></p>
+                                <span class="text-[10px] text-brand-600 font-bold" x-text="formatDisplayDate(ev.date)"></span>
                             </div>
                         </template>
-                    </div>
-                    
-                    <div class="mt-4 pt-4 border-t text-center">
-                        <p class="text-xs font-bold text-slate-500">Total Hadir: <span class="text-green-600 text-lg" x-text="(selectedEvent?.attendance || []).length"></span> Orang</p>
+                        <div x-show="getMemberAttendanceHistory(selectedMember?.id).length === 0" class="text-center py-4 text-xs text-slate-400 italic">Belum pernah mengikuti acara.</div>
                     </div>
                 </div>
 
-                <div class="w-full md:w-1/3 overflow-y-auto">
-                    <h4 class="font-bold mb-4 text-sm">Dokumentasi Acara Ini</h4>
-                    <div class="grid grid-cols-2 gap-2">
-                        <template x-for="(doc, idx) in (selectedEvent?.docs || [])">
-                             <div class="relative group rounded-xl overflow-hidden aspect-square">
-                                <img :src="doc.img" class="w-full h-full object-cover">
-                            </div>
-                        </template>
-                        <div x-show="!(selectedEvent?.docs || []).length" class="col-span-2 text-center text-xs text-slate-400 py-10 border-2 border-dashed border-slate-200 rounded-xl">
-                            Belum ada foto
-                        </div>
-                    </div>
+                <div class="mt-8 flex gap-3">
+                    <a :href="'https://wa.me/' + selectedMember?.wa" target="_blank" class="flex-1 py-3.5 bg-green-500 text-white rounded-2xl font-bold flex items-center justify-center gap-2"><i class="fab fa-whatsapp"></i> Hubungi</a>
+                    <button @click="modals.detailMember = false" class="px-6 bg-slate-100 dark:bg-slate-800 rounded-2xl font-bold">Tutup</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div x-show="modals.event" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" x-cloak>
-        <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl">
-            <h3 class="text-xl font-bold mb-4">Buat Acara Baru</h3>
+        <div class="bg-white dark:bg-slate-900 w-full max-w-md rounded-[3rem] p-8">
+            <h3 class="text-2xl font-extrabold mb-6" x-text="eventForm.id ? 'Edit Acara' : 'Buat Acara Baru'"></h3>
             <form @submit.prevent="saveEvent" class="space-y-4">
                 <input x-model="eventForm.name" required class="input-box" placeholder="Nama Acara">
                 <input type="date" x-model="eventForm.date" required class="input-box">
                 <input x-model="eventForm.location" required class="input-box" placeholder="Lokasi">
-                <div class="flex gap-2">
-                    <button type="button" @click="modals.event = false" class="flex-1 py-3 bg-slate-100 rounded-xl font-bold text-slate-500">Batal</button>
-                    <button type="submit" class="flex-1 py-3 bg-brand-600 text-white rounded-xl font-bold">Simpan</button>
+                <textarea x-model="eventForm.note" class="input-box" placeholder="Catatan/Note" rows="3"></textarea>
+                
+                <div class="flex gap-3">
+                    <button type="button" @click="modals.event = false" class="flex-1 py-3 bg-slate-100 dark:bg-slate-800 font-bold rounded-2xl">Batal</button>
+                    <button type="submit" class="flex-1 py-3 bg-slate-900 dark:bg-brand-600 text-white font-bold rounded-2xl shadow-lg">Simpan</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div x-show="modals.doc" class="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" x-cloak>
-        <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl">
-            <h3 class="font-bold mb-2">Upload Foto</h3>
-            <p class="text-xs text-slate-500 mb-4">Untuk acara: <span x-text="selectedEventForDoc?.name"></span></p>
-            <input type="file" @change="handleDocUpload" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-brand-50 file:text-brand-700 hover:file:bg-brand-100 mb-4">
-            <input x-model="docDesc" class="input-box mb-4" placeholder="Keterangan foto...">
-            <button @click="modals.doc = false" class="w-full py-2 bg-slate-100 font-bold rounded-xl text-slate-500">Tutup</button>
+    <div x-show="modals.detailEvent" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" x-cloak>
+        <div class="bg-white dark:bg-slate-900 w-full max-w-4xl rounded-[3rem] p-10 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-start mb-10">
+                <div>
+                    <span class="text-xs font-bold bg-brand-50 text-brand-600 px-4 py-1 rounded-full mb-3 inline-block" x-text="formatDisplayDate(selectedEvent?.date)"></span>
+                    <h2 class="text-4xl font-extrabold" x-text="selectedEvent?.name"></h2>
+                    <p class="text-slate-500 mt-2 font-medium"><i class="fas fa-location-dot mr-1"></i> <span x-text="selectedEvent?.location"></span></p>
+                </div>
+                <button @click="modals.detailEvent = false" class="text-slate-400 text-2xl">✕</button>
+            </div>
+
+            <div class="flex-1 overflow-hidden flex flex-col md:flex-row gap-10">
+                <div class="w-full md:w-1/2">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="font-bold">Dokumentasi Acara</h4>
+                        <div class="relative">
+                            <button class="bg-brand-600 text-white px-3 py-1.5 rounded-xl text-[10px] font-bold">+ Upload</button>
+                            <input type="file" @change="handleFileUpload($event, 'selectedEvent', 'docs')" class="absolute inset-0 opacity-0 cursor-pointer">
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-3 max-h-64 overflow-y-auto pr-2">
+                        <template x-for="(d, i) in selectedEvent?.docs">
+                            <div class="aspect-video bg-slate-100 rounded-2xl overflow-hidden relative group">
+                                <img :src="d" class="w-full h-full object-cover">
+                                <button @click="selectedEvent.docs.splice(i, 1); updateEventData(selectedEvent)" class="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </template>
+                        <div x-show="!selectedEvent?.docs?.length" class="col-span-2 text-center py-10 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 italic text-xs">Belum ada foto dokumentasi.</div>
+                    </div>
+                    <div class="mt-6 p-5 bg-slate-50 dark:bg-slate-800 rounded-[2rem]">
+                        <p class="text-xs font-bold text-slate-400 mb-2 uppercase">Catatan Panitia</p>
+                        <p class="text-sm font-medium" x-text="selectedEvent?.note || '-'"></p>
+                    </div>
+                </div>
+
+                <div class="flex-1 flex flex-col bg-slate-50 dark:bg-slate-800/50 rounded-[2.5rem] p-8">
+                    <h4 class="font-extrabold mb-6 flex items-center gap-2"><i class="fas fa-clipboard-user text-brand-600"></i> Absensi Peserta</h4>
+                    <input x-model="searchAbsen" placeholder="Cari Nama/RT/ID..." class="input-box mb-4 py-2 border-none shadow-sm">
+                    
+                    <div class="flex-1 overflow-y-auto space-y-2 pr-2">
+                        <template x-for="m in filteredAbsen" :key="m.id">
+                            <div class="bg-white dark:bg-slate-900 p-3.5 rounded-2xl flex justify-between items-center shadow-sm">
+                                <div class="flex items-center gap-3">
+                                    <img :src="m.photo || defaultPhoto" class="w-8 h-8 rounded-full object-cover">
+                                    <div>
+                                        <p class="text-xs font-bold" x-text="m.name"></p>
+                                        <p class="text-[9px] text-slate-400" x-text="`RT ${m.rt} | ${m.customId}`"></p>
+                                    </div>
+                                </div>
+                                <button @click="toggleAbsen(selectedEvent.id, m.id)" 
+                                    :class="hasAttended(selectedEvent.id, m.id) ? 'bg-green-500 text-white' : 'bg-slate-100 text-slate-400'"
+                                    class="px-4 py-1.5 rounded-xl text-[10px] font-bold transition">
+                                    <span x-text="hasAttended(selectedEvent.id, m.id) ? 'HADIR' : 'ABSEN'"></span>
+                                </button>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="mt-6 pt-6 border-t border-slate-200 text-center">
+                         <p class="text-xs font-bold text-slate-500">Total Kehadiran: <span class="text-lg text-brand-600 ml-1" x-text="(selectedEvent?.attendance || []).length"></span> Orang</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Simulasi Database Kota untuk Auto-Complete (Google API Mock)
-        const MOCK_CITIES = [
-            "Jakarta", "Surabaya", "Bandung", "Medan", "Semarang", "Makassar", "Palembang", 
-            "Batam", "Pekanbaru", "Malang", "Denpasar", "Yogyakarta", "Bogor", "Bekasi", 
-            "Depok", "Tangerang", "Padang", "Balikpapan", "Samarinda", "Pontianak", "Banjarmasin"
-        ];
-
         function sbHub() {
             return {
+                darkMode: localStorage.getItem('sb_dark') === 'true',
                 activeTab: 'dashboard',
+                currentSlide: 0,
+                defaultPhoto: 'https://lh3.googleusercontent.com/d/1srkfAZxOVGbtNat84k8BDGtWyTtD7ndE', // 
                 navItems: [
-                    { id: 'dashboard', label: 'Dashboard', icon: 'fa-chart-pie' },
+                    { id: 'dashboard', label: 'Dashboard', icon: 'fa-home' },
                     { id: 'members', label: 'Data Anggota', icon: 'fa-user-group' },
-                    { id: 'events', label: 'Acara & Absen', icon: 'fa-calendar-check' },
+                    { id: 'events', label: 'Agenda Acara', icon: 'fa-calendar-check' },
                     { id: 'finance', label: 'Keuangan', icon: 'fa-wallet' },
                     { id: 'structure', label: 'Struktur', icon: 'fa-sitemap' },
                     { id: 'gallery', label: 'Dokumentasi', icon: 'fa-images' }
                 ],
-                searchQuery: '',
-                searchAbsensi: '',
-                currentSlide: 0,
-                autoSlideInterval: null,
                 
-                // Data Store
+                // DATA
                 members: JSON.parse(localStorage.getItem('sb_members')) || [],
                 events: JSON.parse(localStorage.getItem('sb_events')) || [],
                 transactions: JSON.parse(localStorage.getItem('sb_transactions')) || [],
                 
-                // Modals
-                modals: { member: false, detailMember: false, event: false, detailEvent: false, doc: false },
-                
-                // Forms
-                memForm: { id: null, name: '', rt: '01', joinedDate: '', role: 'Anggota', job: '', photo: '', socials: [], division: '', pob: '', dob: '', wa: '' },
-                eventForm: { name: '', date: '', location: '' },
+                // MODALS & FORMS
+                modals: { member: false, event: false, detailMember: false, detailEvent: false },
+                memForm: { id: null, name: '', gender: 'L', pob: '', dob: '', rt: '01', role: 'Anggota', division: '', joinedDate: '', job: '', wa: '', photo: '', socials: [] },
+                eventForm: { id: null, name: '', date: '', location: '', note: '', docs: [], attendance: [] },
                 finForm: { type: 'in', amount: '', desc: '', date: '' },
                 
-                // Temporary States
                 selectedMember: null,
                 selectedEvent: null,
-                selectedEventForDoc: null,
-                docDesc: '',
-                pobSearch: '',
-                citySuggestions: [],
+                searchAbsen: '',
 
-                initApp() {
-                    this.$watch('members', val => localStorage.setItem('sb_members', JSON.stringify(val)));
-                    this.$watch('events', val => localStorage.setItem('sb_events', JSON.stringify(val)));
-                    this.$watch('transactions', val => localStorage.setItem('sb_transactions', JSON.stringify(val)));
-                    this.startAutoSlide();
-                },
-
-                // --- UTILS & LOGIC ---
-                getDefaultAvatar(name) {
-                    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${name || 'User'}`;
-                },
-                formatRupiah(num) { return new Intl.NumberFormat('id-ID').format(num); },
-
-                // --- DASHBOARD SLIDER ---
-                startAutoSlide() { setInterval(() => this.nextSlide(), 4000); },
-                nextSlide() { if(this.allDocumentation.length) this.currentSlide = (this.currentSlide + 1) % this.allDocumentation.length; },
-                prevSlide() { if(this.allDocumentation.length) this.currentSlide = (this.currentSlide - 1 + this.allDocumentation.length) % this.allDocumentation.length; },
-                get allDocumentation() {
-                    let docs = [];
-                    this.events.forEach(evt => {
-                        if(evt.docs) evt.docs.forEach((d, i) => docs.push({...d, eventName: evt.name, eventId: evt.id, imgIdx: i}));
+                init() {
+                    this.$watch('darkMode', v => {
+                        localStorage.setItem('sb_dark', v);
                     });
-                    return docs;
+                    this.$watch('members', v => localStorage.setItem('sb_members', JSON.stringify(v)));
+                    this.$watch('events', v => localStorage.setItem('sb_events', JSON.stringify(v)));
+                    this.$watch('transactions', v => localStorage.setItem('sb_transactions', JSON.stringify(v)));
+                    
+                    setInterval(() => {
+                        if(this.allDocumentation.length > 0) this.currentSlide = (this.currentSlide + 1) % this.allDocumentation.length;
+                    }, 5000);
                 },
 
-                // --- MEMBER ---
+                // UTILS
+                formatRupiah(n) { return new Intl.NumberFormat('id-ID').format(n); },
+                formatDisplayDate(d) { if(!d) return '-'; const [y,m,day] = d.split('-'); return `${day}/${m}/${y}`; },
+                formatDay(d) { return new Date(d).toLocaleDateString('id-ID', {weekday:'short'}); },
+                formatDateNum(d) { return new Date(d).getDate(); },
+                genderCount(g) { return this.members.filter(m => m.gender === g).length; },
+
+                // MEMBER ACTIONS
                 openRegisterModal() {
-                    this.memForm = { id: null, name: '', rt: '01', joinedDate: '', role: 'Anggota', job: '', photo: '', socials: [], division: '', pob: '', dob: '', wa: '' };
-                    this.pobSearch = '';
+                    this.memForm = { id: null, name: '', gender: 'L', pob: '', dob: '', rt: '01', role: 'Anggota', division: '', joinedDate: '', job: '', wa: '', photo: '', socials: [] };
                     this.modals.member = true;
                 },
-                handlePhotoUpload(e, form) {
-                    const file = e.target.files[0];
-                    if(file) {
-                        const r = new FileReader();
-                        r.onload = (ev) => this[form].photo = ev.target.result;
-                        r.readAsDataURL(file);
-                    }
-                },
-                addSocial() { this.memForm.socials.push({platform: 'instagram', link: ''}); },
-                removeSocial(i) { this.memForm.socials.splice(i, 1); },
-                
-                // --- CITY SEARCH (MOCK API) ---
-                searchCity() {
-                    if(this.pobSearch.length < 2) { this.citySuggestions = []; return; }
-                    this.citySuggestions = MOCK_CITIES.filter(c => c.toLowerCase().includes(this.pobSearch.toLowerCase()));
-                },
-                selectCity(city) {
-                    this.pobSearch = city;
-                    this.memForm.pob = city;
-                    this.citySuggestions = [];
-                },
-
                 saveMember() {
-                    this.memForm.pob = this.pobSearch; // Ensure POB is saved
                     if(!this.memForm.id) {
-                        // AUTO ID LOGIC: 2302001 (YY + RT + Sequence)
-                        const year = this.memForm.joinedDate ? this.memForm.joinedDate.substring(2, 4) : new Date().getFullYear().toString().substr(2,2);
+                        // AUTO ID LOGIC: YY + RT + SEQ
+                        const yy = this.memForm.joinedDate.substring(2,4);
                         const rt = this.memForm.rt;
-                        // Count existing members with same Year & RT
-                        const prefix = `${year}${rt}`;
-                        const similar = this.members.filter(m => m.customId && m.customId.startsWith(prefix));
-                        const seq = (similar.length + 1).toString().padStart(3, '0');
-                        const newId = `${prefix}${seq}`;
-                        
-                        this.members.push({ ...this.memForm, id: Date.now(), customId: newId });
+                        const seq = (this.members.filter(m => m.customId.startsWith(yy+rt)).length + 1).toString().padStart(3, '0');
+                        this.memForm.customId = `${yy}${rt}${seq}`;
+                        this.memForm.id = Date.now();
+                        this.members.push({...this.memForm});
                     } else {
                         const idx = this.members.findIndex(m => m.id === this.memForm.id);
-                        this.members[idx] = { ...this.memForm };
+                        this.members[idx] = {...this.memForm};
                     }
                     this.modals.member = false;
                 },
-                openDetailMember(m) {
-                    this.selectedMember = m;
-                    this.modals.detailMember = true;
-                },
-                editMember(m) {
-                    this.memForm = JSON.parse(JSON.stringify(m));
-                    this.pobSearch = m.pob || '';
-                    this.modals.member = true;
-                },
-                get filteredMembers() {
-                    const q = this.searchQuery.toLowerCase();
-                    return this.members.filter(m => m.name.toLowerCase().includes(q) || m.customId.includes(q) || m.rt.includes(q));
-                },
+                editMember(m) { this.memForm = JSON.parse(JSON.stringify(m)); this.modals.member = true; },
+                deleteMember(id) { if(confirm('Hapus anggota ini?')) this.members = this.members.filter(m => m.id !== id); },
+                openDetailMember(m) { this.selectedMember = m; this.modals.detailMember = true; },
+                get filteredMembers() { return this.members; },
 
-                // --- EVENTS & ATTENDANCE ---
+                // EVENT ACTIONS
                 openEventModal() {
-                    this.eventForm = { name: '', date: '', location: '' };
+                    this.eventForm = { id: null, name: '', date: '', location: '', note: '', docs: [], attendance: [] };
                     this.modals.event = true;
                 },
                 saveEvent() {
-                    this.events.push({ ...this.eventForm, id: Date.now(), docs: [], attendance: [] });
+                    if(!this.eventForm.id) {
+                        this.eventForm.id = Date.now();
+                        this.events.push({...this.eventForm});
+                    } else {
+                        const idx = this.events.findIndex(e => e.id === this.eventForm.id);
+                        this.events[idx] = {...this.eventForm};
+                    }
                     this.modals.event = false;
                 },
-                openDetailEvent(evt) {
-                    this.selectedEvent = evt;
-                    this.modals.detailEvent = true;
+                editEvent(e) { this.eventForm = JSON.parse(JSON.stringify(e)); this.modals.event = true; },
+                deleteEvent(id) { if(confirm('Hapus acara ini?')) this.events = this.events.filter(e => e.id !== id); },
+                openDetailEvent(e) { this.selectedEvent = e; this.modals.detailEvent = true; },
+                updateEventData(e) { const idx = this.events.findIndex(ev => ev.id === e.id); this.events[idx] = {...e}; this.events = [...this.events]; },
+
+                // ATTENDANCE LOGIC
+                toggleAbsen(eventId, memberId) {
+                    const idx = this.events.findIndex(e => e.id === eventId);
+                    let att = this.events[idx].attendance || [];
+                    if(att.includes(memberId)) att = att.filter(id => id !== memberId);
+                    else att.push(memberId);
+                    this.events[idx].attendance = att;
+                    this.events = [...this.events];
                 },
-                toggleAttendance(eventId, memberId) {
-                    const evtIdx = this.events.findIndex(e => e.id === eventId);
-                    const att = this.events[evtIdx].attendance || [];
-                    if(att.includes(memberId)) {
-                        this.events[evtIdx].attendance = att.filter(id => id !== memberId);
-                    } else {
-                        this.events[evtIdx].attendance.push(memberId);
-                    }
-                    this.events = [...this.events]; // Trigger reactivity
-                },
-                isAttended(eventId, memberId) {
+                hasAttended(eventId, memberId) {
                     return (this.events.find(e => e.id === eventId)?.attendance || []).includes(memberId);
                 },
-                get filterAbsensiMembers() {
-                    const q = this.searchAbsensi.toLowerCase();
+                getMemberAttendanceHistory(memberId) {
+                    return this.events.filter(e => (e.attendance || []).includes(memberId));
+                },
+                get filteredAbsen() {
+                    const q = this.searchAbsen.toLowerCase();
                     return this.members.filter(m => m.name.toLowerCase().includes(q) || m.customId.includes(q) || m.rt.includes(q));
                 },
-                addDocumentation(evt) {
-                    this.selectedEventForDoc = evt;
-                    this.docDesc = '';
-                    this.modals.doc = true;
-                },
-                handleDocUpload(e) {
-                    const file = e.target.files[0];
-                    if(file && this.selectedEventForDoc) {
-                        const r = new FileReader();
-                        r.onload = (res) => {
-                            const idx = this.events.findIndex(e => e.id === this.selectedEventForDoc.id);
-                            if(idx > -1) {
-                                if(!this.events[idx].docs) this.events[idx].docs = [];
-                                this.events[idx].docs.push({ img: res.target.result, desc: this.docDesc });
-                                this.events = [...this.events];
-                                this.modals.doc = false;
-                            }
-                        };
-                        r.readAsDataURL(file);
-                    }
-                },
-                deleteDocImage(eid, imgIdx) {
-                     const idx = this.events.findIndex(e => e.id === eid);
-                     this.events[idx].docs.splice(imgIdx, 1);
-                     this.events = [...this.events];
-                },
 
-                // --- FINANCE ---
+                // FINANCE
                 addTransaction() {
-                    this.transactions.push({ ...this.finForm, id: Date.now() });
+                    if(!this.finForm.amount || !this.finForm.desc) return;
+                    this.transactions.push({...this.finForm, id: Date.now()});
                     this.finForm = { type: 'in', amount: '', desc: '', date: '' };
                 },
                 deleteTransaction(id) { this.transactions = this.transactions.filter(t => t.id !== id); },
@@ -771,13 +627,36 @@
                 get totalIn() { return this.transactions.filter(t => t.type === 'in').reduce((a,b) => a + Number(b.amount), 0); },
                 get totalOut() { return this.transactions.filter(t => t.type === 'out').reduce((a,b) => a + Number(b.amount), 0); },
 
-                // --- STRUCTURE AUTOMATIC ---
-                getRoleMember(role) {
-                    return this.members.find(m => m.role === role);
+                // PHOTO HANDLER
+                handleFileUpload(e, targetObj, field) {
+                    const file = e.target.files[0];
+                    if(!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        if(field === 'docs') {
+                            if(!this[targetObj].docs) this[targetObj].docs = [];
+                            this[targetObj].docs.push(ev.target.result);
+                            this.updateEventData(this[targetObj]);
+                        } else {
+                            this[targetObj][field] = ev.target.result;
+                        }
+                    };
+                    reader.readAsDataURL(file);
                 },
-                getMembersByRoleType(roleType) {
-                    // Filter untuk 'Pengurus' bisa jadi role 'Pengurus' atau yg punya divisi
-                    return this.members.filter(m => m.role === roleType);
+                addSocial() { this.memForm.socials.push({platform: 'instagram', link: ''}); },
+
+                // ORGANISASI LOGIC
+                getRoleMember(r) { return this.members.find(m => m.role === r); },
+                get pengurusDivisi() { return this.members.filter(m => m.role === 'Pengurus'); },
+                
+                // EVENT STATUS LOGIC
+                get sortedEvents() { return [...this.events].sort((a,b) => new Date(b.date) - new Date(a.date)); },
+                get doneEvents() { return this.events.filter(e => new Date(e.date) < new Date()); },
+                get upcomingEvents() { return this.events.filter(e => new Date(e.date) >= new Date().setHours(0,0,0,0)); },
+                get allDocumentation() {
+                    let d = [];
+                    this.events.forEach(e => { if(e.docs) e.docs.forEach(img => d.push({img, eventName: e.name})); });
+                    return d;
                 }
             }
         }
